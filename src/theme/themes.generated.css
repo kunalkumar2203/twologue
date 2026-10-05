@@ -1,0 +1,109 @@
+/* Generated from tokens.json by scripts/build-theme.mjs. Do not edit. */
+
+[data-theme="ember"][data-mode="light"] {
+  --page: #FBF4EC;
+  --surface: #F3E6D8;
+  --ink: #3B2A24;
+  --ink-soft: #7A6358;
+  --accent: #BC4B33;
+  --on-accent: #FFFFFF;
+}
+
+[data-theme="ember"][data-mode="dark"] {
+  --page: #1F1512;
+  --surface: #2C1E1A;
+  --ink: #F6EADF;
+  --ink-soft: #BFA597;
+  --accent: #E8806A;
+  --on-accent: #1F1512;
+}
+
+[data-theme="dew"][data-mode="light"] {
+  --page: #F2F6F3;
+  --surface: #E3ECE6;
+  --ink: #1F2F2A;
+  --ink-soft: #587068;
+  --accent: #B03A5B;
+  --on-accent: #FFFFFF;
+}
+
+[data-theme="dew"][data-mode="dark"] {
+  --page: #101A17;
+  --surface: #1A2824;
+  --ink: #E6F0EB;
+  --ink-soft: #9DB5AB;
+  --accent: #F28DA6;
+  --on-accent: #101A17;
+}
+
+[data-theme="bloom"][data-mode="light"] {
+  --page: #FFF7FA;
+  --surface: #FFE6EF;
+  --ink: #2B1B3D;
+  --ink-soft: #6B5A80;
+  --accent: #D42A6C;
+  --on-accent: #FFFFFF;
+}
+
+[data-theme="bloom"][data-mode="dark"] {
+  --page: #1C1226;
+  --surface: #2A1B38;
+  --ink: #FDEFF6;
+  --ink-soft: #C4AEDB;
+  --accent: #FF6FA5;
+  --on-accent: #1C1226;
+}
+
+[data-theme="dusk"][data-mode="light"] {
+  --page: #F4F1F8;
+  --surface: #E6E0F0;
+  --ink: #251F3A;
+  --ink-soft: #62597F;
+  --accent: #0B7A6E;
+  --on-accent: #FFFFFF;
+}
+
+[data-theme="dusk"][data-mode="dark"] {
+  --page: #14111F;
+  --surface: #1F1A31;
+  --ink: #EEE9F8;
+  --ink-soft: #A99FC6;
+  --accent: #5EE0C8;
+  --on-accent: #14111F;
+}
+
+[data-theme="tide"][data-mode="light"] {
+  --page: #F1F7FB;
+  --surface: #DFECF5;
+  --ink: #12283A;
+  --ink-soft: #4F6B80;
+  --accent: #CC7A00;
+  --on-accent: #12283A;
+}
+
+[data-theme="tide"][data-mode="dark"] {
+  --page: #0C1A26;
+  --surface: #14293A;
+  --ink: #E4F1FA;
+  --ink-soft: #95B3C8;
+  --accent: #FFB84D;
+  --on-accent: #0C1A26;
+}
+
+[data-theme="slate"][data-mode="light"] {
+  --page: #F4F4F2;
+  --surface: #E7E7E4;
+  --ink: #1C1C1B;
+  --ink-soft: #66666F;
+  --accent: #3A6EA5;
+  --on-accent: #FFFFFF;
+}
+
+[data-theme="slate"][data-mode="dark"] {
+  --page: #121212;
+  --surface: #1E1E1E;
+  --ink: #EDEDEB;
+  --ink-soft: #A3A39D;
+  --accent: #8FB4DE;
+  --on-accent: #121212;
+}

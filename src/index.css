@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@import "./theme/themes.generated.css";
+
+/* Colour names used in the app, e.g. bg-page, text-ink, bg-accent.
+   They point at the variables of whichever theme is active. */
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+}
+
+/* Fraunces for headings, Figtree for everything else, Kalam for handwritten touches (font-hand) */
+@theme {
+  --font-heading: "Fraunces Variable", Georgia, serif;
+  --font-sans: "Figtree Variable", system-ui, sans-serif;
+  --font-hand: "Kalam", "Segoe Print", cursive;
+}
+
+@layer base {
+  body {
+    @apply bg-page text-ink font-sans;
+  }
+  h1, h2, h3 {
+    @apply font-heading;
+  }
+}
