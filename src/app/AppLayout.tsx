@@ -7,7 +7,10 @@ export default function AppLayout() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-xl flex-col">
       <header className="flex items-center justify-between px-5 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
-        <span className="font-heading text-xl font-semibold">Couples App</span>
+        <div className="flex flex-col leading-none">
+          <span className="font-heading text-3xl font-semibold">Twologue</span>
+          <span className="mt-1 text-[15px] font-medium tracking-[0.18em] text-ink-soft">Between Us</span>
+        </div>
         <Link to="/settings" aria-label="Settings" className="rounded-full p-2 text-ink-soft hover:text-ink">
           <Settings size={22} />
         </Link>

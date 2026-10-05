@@ -78,7 +78,7 @@
   --ink: #12283A;
   --ink-soft: #4F6B80;
   --accent: #CC7A00;
-  --on-accent: #12283A;
+  --on-accent: #FFFFFF;
 }
 
 [data-theme="tide"][data-mode="dark"] {
