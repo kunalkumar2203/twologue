@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router";
+import { BRAND } from "@/config/brand";
 import { TABS } from "./tabs";
 
 // Frame around every screen: top bar, the screen itself, bottom tab bar
@@ -8,7 +9,7 @@ export default function AppLayout() {
     <div className="mx-auto flex min-h-dvh max-w-xl flex-col">
       <header className="flex items-center justify-between px-5 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
         <div className="flex flex-col leading-none">
-          <span className="font-heading text-3xl font-semibold">Twologue</span>
+          <span className="font-heading text-3xl font-semibold">{BRAND.name}</span>
           <span className="mt-1 text-[15px] font-medium tracking-[0.18em] text-ink-soft">Between Us</span>
         </div>
         <Link to="/settings" aria-label="Settings" className="rounded-full p-2 text-ink-soft hover:text-ink">

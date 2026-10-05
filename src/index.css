@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./theme/fonts.css";
 @import "./theme/themes.generated.css";
 
 /* Colour names used in the app, e.g. bg-page, text-ink, bg-accent.
@@ -10,13 +11,6 @@
   --color-ink-soft: var(--ink-soft);
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
-}
-
-/* Fraunces for headings, Figtree for everything else, Kalam for handwritten touches (font-hand) */
-@theme {
-  --font-heading: "Fraunces Variable", Georgia, serif;
-  --font-sans: "Figtree Variable", system-ui, sans-serif;
-  --font-hand: "Kalam", "Segoe Print", cursive;
 }
 
 @layer base {

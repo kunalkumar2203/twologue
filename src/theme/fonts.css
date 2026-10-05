@@ -1,0 +1,10 @@
+/* Fonts and their roles. To change a font, swap its @import and the name below. */
+@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/figtree";
+@import "@fontsource/kalam/400.css";
+
+@theme {
+  --font-heading: "Fraunces Variable", Georgia, serif; /* headings, product name */
+  --font-sans: "Figtree Variable", system-ui, sans-serif; /* body text and buttons */
+  --font-hand: "Kalam", "Segoe Print", cursive; /* handwritten touches */
+}

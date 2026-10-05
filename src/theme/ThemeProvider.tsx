@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { BRAND } from "@/config/brand";
 import tokens from "./tokens.json";
 import type { Mode, ThemeId } from "./themes";
 
@@ -8,10 +9,9 @@ type ThemeContext = Settings & {
   setMode: (mode: Mode) => void;
 };
 
-const STORAGE_KEY = "theme-settings";
+const STORAGE_KEY = BRAND.themeStorageKey;
 const Context = createContext<ThemeContext | null>(null);
 
-// Use the saved choice if valid, otherwise Ember in the device's light/dark setting
 function loadSettings(): Settings {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
@@ -20,7 +20,7 @@ function loadSettings(): Settings {
     // Unreadable saved data: fall through to the defaults
   }
   const prefersDark = matchMedia("(prefers-color-scheme: dark)").matches;
-  return { theme: "ember", mode: prefersDark ? "dark" : "light" };
+  return { theme: BRAND.defaultTheme, mode: prefersDark ? "dark" : "light" };
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

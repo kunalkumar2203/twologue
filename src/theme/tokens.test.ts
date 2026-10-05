@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { BRAND } from "@/config/brand";
 import tokens from "./tokens.json";
 
 const COLOUR_NAMES = ["page", "surface", "ink", "inkSoft", "accent", "onAccent"];
@@ -13,4 +14,8 @@ describe("theme colours", () => {
       });
     }
   }
+});
+
+it("the default theme exists", () => {
+  expect(Object.keys(tokens)).toContain(BRAND.defaultTheme);
 });
