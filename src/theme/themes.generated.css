@@ -19,11 +19,11 @@
 }
 
 [data-theme="dew"][data-mode="light"] {
-  --page: #F2F6F3;
-  --surface: #E3ECE6;
-  --ink: #1F2F2A;
-  --ink-soft: #587068;
-  --accent: #B03A5B;
+  --page: #EDF4EA;
+  --surface: #D8E7D4;
+  --ink: #1B3023;
+  --ink-soft: #4C6A56;
+  --accent: #A8324F;
   --on-accent: #FFFFFF;
 }
 
@@ -37,11 +37,11 @@
 }
 
 [data-theme="bloom"][data-mode="light"] {
-  --page: #FFF7FA;
-  --surface: #FFE6EF;
-  --ink: #2B1B3D;
-  --ink-soft: #6B5A80;
-  --accent: #D42A6C;
+  --page: #FFF0F6;
+  --surface: #FFD9E8;
+  --ink: #3B1224;
+  --ink-soft: #7B4A61;
+  --accent: #B5179E;
   --on-accent: #FFFFFF;
 }
 
@@ -55,10 +55,10 @@
 }
 
 [data-theme="dusk"][data-mode="light"] {
-  --page: #F4F1F8;
-  --surface: #E6E0F0;
-  --ink: #251F3A;
-  --ink-soft: #62597F;
+  --page: #EEEAF8;
+  --surface: #DAD2EF;
+  --ink: #1B1A4B;
+  --ink-soft: #54518A;
   --accent: #0B7A6E;
   --on-accent: #FFFFFF;
 }
