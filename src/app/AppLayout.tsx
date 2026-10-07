@@ -12,7 +12,7 @@ export default function AppLayout() {
           <span className="font-heading text-3xl font-semibold">{BRAND.name}</span>
           <span className="mt-1 text-[15px] font-medium tracking-[0.18em] text-ink-soft">Between Us</span>
         </div>
-        <Link to="/settings" aria-label="Settings" className="rounded-full p-2 text-ink-soft hover:text-ink">
+        <Link to="/app/settings" aria-label="Settings" className="rounded-full p-2 text-ink-soft hover:text-ink">
           <Settings size={22} />
         </Link>
       </header>
@@ -28,7 +28,7 @@ export default function AppLayout() {
             <li key={path} className="flex-1">
               <NavLink
                 to={path}
-                end={path === "/"}
+                end={path === "/app"}
                 className={({ isActive }) =>
                   `flex flex-col items-center gap-1 py-2 text-xs ${isActive ? "text-accent" : "text-ink-soft"}`
                 }
