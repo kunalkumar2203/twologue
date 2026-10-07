@@ -4,5 +4,6 @@ export const BRAND = {
   tagline: "Between Us",
   description: "A web app that helps couples connect, play and talk things through.",
   defaultTheme: "ember", // must be a key in src/theme/tokens.json
-  themeStorageKey: "twologue-theme", // where the browser remembers the theme choice
+  themeStorageKey: "twologue-theme", // browser remembers the theme choice
+  modeStorageKey: "twologue-mode", // browser remembers the mode choice
 } as const;

@@ -2,7 +2,7 @@ import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
-import { BRAND } from "./src/config/brand";
+import { BRAND } from "./src/config/brand.ts";
 
 // Fills %NAME% placeholders in index.html from src/config/brand.ts
 const htmlValues: Record<string, string> = {
