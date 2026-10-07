@@ -7,15 +7,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePalette } from "@/components/palette-provider";
-import { PALETTES } from "@/config/themes";
+import tokens from "@/theme/tokens.json";
+import { THEMES } from "@/theme/themes";
+import { useTheme } from "@/theme/ThemeProvider";
 import { cn } from "@/lib/utils";
 
 export function ThemePicker() {
-  const { palette, setPalette, mode, toggleMode } = usePalette();
-  const swatchColor = (id: (typeof PALETTES)[number]["id"]) => {
-    const selected = PALETTES.find((item) => item.id === id);
-    return mode === "dark" ? selected?.darkAccent : selected?.lightAccent;
+  const { theme, setTheme, mode, setMode } = useTheme();
+  const swatchColor = (id: (typeof THEMES)[number]["id"]) => {
+    return tokens[id][mode].accent;
   };
 
   return (
@@ -30,22 +30,22 @@ export function ThemePicker() {
           >
             <span
               className="size-4 rounded-full ring-1 ring-border"
-              style={{ background: swatchColor(palette) }}
+              style={{ background: swatchColor(theme) }}
             />
             <span className="hidden sm:inline">
-              {PALETTES.find((p) => p.id === palette)?.label}
+              {THEMES.find((item) => item.id === theme)?.label}
             </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          {PALETTES.map((p) => (
+          {THEMES.map((p) => (
             <DropdownMenuItem
               key={p.id}
-              onClick={() => setPalette(p.id)}
-              aria-pressed={palette === p.id}
+              onClick={() => setTheme(p.id)}
+              aria-pressed={theme === p.id}
               className={cn(
                 "flex items-center gap-2",
-                palette === p.id && "font-semibold"
+                theme === p.id && "font-semibold"
               )}
             >
               <span
@@ -65,7 +65,7 @@ export function ThemePicker() {
         variant="outline"
         size="icon"
         className="rounded-full"
-        onClick={toggleMode}
+        onClick={() => setMode(mode === "dark" ? "light" : "dark")}
         aria-label={`Switch to ${mode === "dark" ? "light" : "dark"} mode`}
         aria-pressed={mode === "dark"}
       >

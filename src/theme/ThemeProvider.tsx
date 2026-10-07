@@ -14,8 +14,16 @@ const Context = createContext<ThemeContext | null>(null);
 
 function loadSettings(): Settings {
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const saved = JSON.parse(raw ?? "null");
     if (saved?.theme in tokens && (saved.mode === "light" || saved.mode === "dark")) return saved;
+    if (typeof saved === "string" && saved in tokens) {
+      const storedMode = localStorage.getItem(BRAND.modeStorageKey);
+      return {
+        theme: saved as ThemeId,
+        mode: storedMode === "dark" ? "dark" : "light",
+      };
+    }
   } catch {
     // Unreadable saved data: fall through to the defaults
   }

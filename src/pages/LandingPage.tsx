@@ -4,6 +4,12 @@ import { BRAND } from "@/config/brand";
 import { RevealWidget } from "@/components/reveal-widget";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { ThemePicker } from "@/components/theme-picker";
+import {
+  CheckInDemo,
+  GameDemo,
+  JournalDemo,
+  ProgramDemo,
+} from "@/components/feature-demos";
 
 const RITUAL_STEPS = [
   {
@@ -31,6 +37,7 @@ export default function App() {
       <main>
         <Hero />
         <RitualSection />
+        <ShowcaseSection />
         <FeatureSection />
         <WaitlistSection />
       </main>
@@ -42,7 +49,7 @@ export default function App() {
 function Header() {
   return (
     <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
         <span className="font-heading text-xl font-semibold">
           {BRAND.name}
         </span>
@@ -54,7 +61,7 @@ function Header() {
 
 function Hero() {
   return (
-    <section className="px-5 pt-12 pb-10 sm:pt-16 lg:pt-24">
+    <section className="px-4 pt-12 pb-10 sm:px-6 sm:pt-16 lg:pt-24">
       <div className="mx-auto max-w-5xl">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full border px-3 py-1 text-xs text-muted-foreground">
@@ -90,7 +97,7 @@ function Hero() {
 
 function RitualSection() {
   return (
-    <section className="px-5 py-12 lg:py-16">
+    <section className="px-4 py-12 sm:px-6 lg:py-16">
       <div className="mx-auto max-w-5xl">
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           A small ritual, every day
@@ -120,9 +127,31 @@ function RitualSection() {
   );
 }
 
+function ShowcaseSection() {
+  return (
+    <section className="px-4 py-12 sm:px-6 lg:py-16">
+      <div className="mx-auto max-w-5xl">
+        <h2 className="text-center text-xl font-semibold sm:text-2xl">
+          The daily question is just the start
+        </h2>
+        <p className="mx-auto mt-2 max-w-md text-center text-sm text-muted-foreground sm:text-base">
+          Four more ways to stay close. Try them right here.
+        </p>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <JournalDemo />
+          <GameDemo />
+          <CheckInDemo />
+          <ProgramDemo />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FeatureSection() {
   return (
-    <section className="px-5 py-12 lg:py-16">
+    <section className="px-4 py-12 sm:px-6 lg:py-16">
       <div className="mx-auto max-w-3xl">
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           Why {BRAND.name}
@@ -139,7 +168,7 @@ function FeatureSection() {
           />
           <FeatureItem
             title="More than questions"
-            text="Shared journaling, gentle games, check-ins and guided programs — all built around the same idea: answer privately, reveal together."
+            text="Journaling, games, check-ins and guided programs all follow the same idea: each of you answers privately, then you see it together. Pick what fits your week."
           />
         </div>
       </div>
@@ -160,7 +189,7 @@ function WaitlistSection() {
   return (
     <section
       id="waitlist"
-      className="scroll-mt-20 px-5 py-14 lg:py-20"
+      className="scroll-mt-20 px-4 py-14 sm:px-6 lg:py-20"
     >
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-xl font-semibold sm:text-2xl">
@@ -181,7 +210,7 @@ function WaitlistSection() {
 
 function Footer() {
   return (
-    <footer className="border-t px-5 py-10">
+    <footer className="border-t px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-5xl">
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <span className="font-heading text-lg font-semibold">

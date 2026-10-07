@@ -6,9 +6,9 @@ import { TABS } from "./tabs";
 // Frame around every screen: top bar, the screen itself, bottom tab bar
 export default function AppLayout() {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-xl flex-col">
-      <header className="flex items-center justify-between px-5 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
-        <div className="flex flex-col leading-none">
+    <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col">
+      <header className="flex items-center justify-between px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 lg:px-8">
+        <div className="flex min-w-0 flex-col leading-none">
           <span className="font-heading text-3xl font-semibold">{BRAND.name}</span>
           <span className="mt-1 text-[15px] font-medium tracking-[0.18em] text-ink-soft">Between Us</span>
         </div>
@@ -17,13 +17,13 @@ export default function AppLayout() {
         </Link>
       </header>
 
-      <main className="flex-1 px-5 py-4">
+      <main className="mx-auto flex w-full min-w-0 max-w-4xl flex-1 px-4 py-4 sm:px-6 lg:px-8">
         <Outlet />
       </main>
 
       {/* pb keeps the bar clear of the phone's home indicator */}
       <nav className="sticky bottom-0 border-t border-ink-soft/20 bg-page pb-[env(safe-area-inset-bottom)]">
-        <ul className="flex">
+        <ul className="mx-auto flex w-full max-w-2xl">
           {TABS.map(({ path, label, icon: Icon }) => (
             <li key={path} className="flex-1">
               <NavLink

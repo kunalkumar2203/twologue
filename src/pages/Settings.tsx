@@ -8,7 +8,7 @@ export default function Settings() {
   const { theme, mode, setTheme, setMode } = useTheme();
 
   return (
-    <section>
+    <section className="w-full max-w-3xl">
       <h1 className="text-3xl font-semibold">Settings</h1>
       <h2 className="mt-8 text-xl font-semibold">Appearance</h2>
 
