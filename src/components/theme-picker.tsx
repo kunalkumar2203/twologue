@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Moon, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,13 +15,14 @@ import { cn } from "@/lib/utils";
 
 export function ThemePicker() {
   const { theme, setTheme, mode, setMode } = useTheme();
+  const [hovered, setHovered] = React.useState<string | null>(null);
   const swatchColor = (id: (typeof THEMES)[number]["id"]) => {
     return tokens[id][mode].accent;
   };
 
   return (
     <div className="flex items-center gap-2">
-      <DropdownMenu>
+      <DropdownMenu onOpenChange={() => setHovered(null)}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
@@ -46,6 +48,18 @@ export function ThemePicker() {
               key={p.id}
               onClick={() => setTheme(p.id)}
               aria-pressed={theme === p.id}
+              onMouseEnter={() => setHovered(p.id)}
+              onMouseLeave={() => setHovered(null)}
+              onFocus={() => setHovered(p.id)}
+              onBlur={() => setHovered(null)}
+              style={
+                hovered === p.id
+                  ? {
+                      backgroundColor: `color-mix(in srgb, ${swatchColor(p.id)} 28%, transparent)`,
+                      boxShadow: `inset 3px 0 0 ${swatchColor(p.id)}`,
+                    }
+                  : undefined
+              }
               className={cn(
                 "flex items-center gap-2 focus:bg-surface focus:text-ink",
                 theme === p.id && "font-semibold"
