@@ -37,14 +37,17 @@ export function ThemePicker() {
             </span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent
+          align="end"
+          className="w-48 border-ink-soft/20 bg-page text-ink shadow-lg"
+        >
           {THEMES.map((p) => (
             <DropdownMenuItem
               key={p.id}
               onClick={() => setTheme(p.id)}
               aria-pressed={theme === p.id}
               className={cn(
-                "flex items-center gap-2",
+                "flex items-center gap-2 focus:bg-surface focus:text-ink",
                 theme === p.id && "font-semibold"
               )}
             >
@@ -54,7 +57,7 @@ export function ThemePicker() {
               />
               <span className="flex flex-col">
                 <span>{p.label}</span>
-                <span className="text-xs text-muted-foreground">{p.vibe}</span>
+                <span className="text-xs text-ink-soft">{p.vibe}</span>
               </span>
             </DropdownMenuItem>
           ))}
