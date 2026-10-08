@@ -1,4 +1,12 @@
-import { MessageCircleHeart, Lock, Sparkles } from "lucide-react";
+import {
+  BookHeart,
+  Dices,
+  HeartPulse,
+  Lock,
+  MessageCircleHeart,
+  Route,
+  Sparkles,
+} from "lucide-react";
 
 import { BRAND } from "@/config/brand";
 import { RevealWidget } from "@/components/reveal-widget";
@@ -36,6 +44,7 @@ export default function App() {
       <Header />
       <main>
         <Hero />
+        <AudienceSection />
         <RitualSection />
         <ShowcaseSection />
         <FeatureSection />
@@ -59,36 +68,108 @@ function Header() {
   );
 }
 
+const OVERVIEW = [
+  { icon: MessageCircleHeart, title: "A daily question", text: "One gentle prompt each morning" },
+  { icon: BookHeart, title: "A shared journal", text: "Write a page together" },
+  { icon: Dices, title: "Mini games", text: "This-or-that and guessing rounds" },
+  { icon: HeartPulse, title: "Check-ins", text: "How the week is really going" },
+  { icon: Route, title: "Guided programs", text: "Short paths, one step a day" },
+];
+
+const AUDIENCE = [
+  { title: "Newer couples", text: "Learn the small things about each other without a formal getting-to-know-you talk." },
+  { title: "Together for years", text: "Break out of logistics and rediscover what you each think about, one prompt at a time." },
+  { title: "Long distance", text: "Share a daily moment across time zones, even when you can't talk live." },
+];
+
 function Hero() {
   return (
     <section className="px-4 pt-12 pb-10 sm:px-6 sm:pt-16 lg:pt-24">
-      <div className="mx-auto max-w-5xl">
-        <div className="mx-auto max-w-2xl text-center">
+      <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
+        <div className="text-center lg:text-left">
           <span className="inline-block rounded-full border px-3 py-1 text-xs text-muted-foreground">
             {BRAND.tagline}
           </span>
           <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-            Answer privately.
-            <br />
-            Reveal together.
+            A small daily space for the two of you.
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-base text-muted-foreground sm:text-lg">
-            {BRAND.name} is a small daily ritual for two. One question, two
-            private answers, one shared moment.
+          <p className="mx-auto mt-4 max-w-lg text-base text-muted-foreground sm:text-lg lg:mx-0">
+            {BRAND.name} is a space for couples who want to stay close without
+            the pressure. A question, a shared journal, mini games and
+            check-ins, in about five minutes a day.
           </p>
-        </div>
 
-        <div className="mt-10 sm:mt-14">
-          <RevealWidget />
-        </div>
-
-        <div className="mt-10 text-center">
-          <a
-            href="#waitlist"
-            className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          <ul
+            aria-label="Who it's for"
+            className="mt-5 flex flex-wrap justify-center gap-2 lg:justify-start"
           >
-            Join the waitlist
-          </a>
+            {AUDIENCE.map((a) => (
+              <li key={a.title} className="rounded-full border px-3 py-1 text-xs text-muted-foreground">
+                {a.title}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <a
+              href="#waitlist"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Join the waitlist
+            </a>
+            <a
+              href="#how"
+              className="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-semibold transition-colors hover:bg-card"
+            >
+              See how it works
+            </a>
+          </div>
+        </div>
+
+        <div className="mx-auto w-full max-w-md rounded-2xl border bg-card p-4 sm:p-5 lg:mr-0">
+          <p className="mb-3 text-sm font-semibold text-muted-foreground">
+            Everything in {BRAND.name}
+          </p>
+          <ul className="space-y-2">
+            {OVERVIEW.map((item, i) => (
+              <li
+                key={item.title}
+                style={{ animationDelay: `${i * 90}ms` }}
+                className="flex items-center gap-3 rounded-xl border bg-background p-3 duration-500 animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards motion-reduce:animate-none"
+              >
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-full border">
+                  <item.icon className="size-4 text-primary" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold">{item.title}</p>
+                  <p className="text-xs text-muted-foreground">{item.text}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AudienceSection() {
+  return (
+    <section className="px-4 py-12 sm:px-6 lg:py-16">
+      <div className="mx-auto max-w-5xl">
+        <h2 className="text-center text-xl font-semibold sm:text-2xl">
+          Made for two, wherever you are
+        </h2>
+        <p className="mx-auto mt-2 max-w-md text-center text-sm text-muted-foreground sm:text-base">
+          Calm, private and never competitive. No streaks, no scores to beat.
+        </p>
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          {AUDIENCE.map((a) => (
+            <div key={a.title} className="rounded-2xl border bg-card p-4 sm:p-5">
+              <h3 className="text-base font-semibold">{a.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{a.text}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -97,7 +178,7 @@ function Hero() {
 
 function RitualSection() {
   return (
-    <section className="px-4 py-12 sm:px-6 lg:py-16">
+    <section id="how" className="scroll-mt-20 px-4 py-12 sm:px-6 lg:py-16">
       <div className="mx-auto max-w-5xl">
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           A small ritual, every day
@@ -121,6 +202,16 @@ function RitualSection() {
               </p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-12 sm:mt-14">
+          <h3 className="text-center text-lg font-semibold sm:text-xl">
+            Answer privately. Reveal together.
+          </h3>
+          <p className="mx-auto mb-6 mt-2 max-w-md text-center text-sm text-muted-foreground sm:text-base">
+            Try it: tap reveal to see how a shared moment lands.
+          </p>
+          <RevealWidget />
         </div>
       </div>
     </section>

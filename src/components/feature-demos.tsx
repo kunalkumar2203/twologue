@@ -11,9 +11,7 @@ import {
  
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
- 
-/* Fires once when the element scrolls into view. Skips straight to "seen"
-   for reduced-motion users or browsers without IntersectionObserver. */
+
 function useInView<T extends Element>() {
   const ref = React.useRef<T>(null);
   const [seen, setSeen] = React.useState(false);
@@ -40,7 +38,7 @@ function useInView<T extends Element>() {
  
   return { ref, seen };
 }
-
+ 
 function DemoCard({
   icon: Icon,
   title,
@@ -110,7 +108,7 @@ export function JournalDemo() {
   );
 }
  
-/* ---------- Gentle games ---------- */
+/* ---------- Mini games ---------- */
  
 const ROUNDS = [
   { q: "Sunday plans?", options: ["Slow breakfast", "Long walk"], them: 0 },
@@ -261,11 +259,12 @@ export function ProgramDemo() {
       <div ref={ref}>
         <p className="text-xs text-muted-foreground">Seven days of listening</p>
         <div className="relative mt-3">
-          <div className="absolute inset-x-4 top-1/2 h-0.5 -translate-y-1/2 bg-border" />
-          <div
-            className="absolute left-4 top-1/2 h-0.5 -translate-y-1/2 bg-primary transition-[width] duration-1000 ease-out motion-reduce:transition-none"
-            style={{ width: seen ? `calc((100% - 2rem) * ${TODAY / (DAYS.length - 1)})` : 0 }}
-          />
+          <div className="absolute inset-x-3.5 top-1/2 h-0.5 -translate-y-1/2 bg-border sm:inset-x-4">
+            <div
+              className="h-full bg-primary transition-[width] duration-1000 ease-out motion-reduce:transition-none"
+              style={{ width: seen ? `${(TODAY / (DAYS.length - 1)) * 100}%` : 0 }}
+            />
+          </div>
           <div className="relative flex justify-between">
             {DAYS.map((d, i) => {
               const locked = i > TODAY;
@@ -278,7 +277,7 @@ export function ProgramDemo() {
                   aria-pressed={selected === i}
                   onClick={() => setSelected(i)}
                   className={cn(
-                    "flex size-8 items-center justify-center rounded-full border bg-background text-xs transition-colors",
+                    "flex size-7 items-center justify-center rounded-full border bg-background text-xs transition-colors sm:size-8",
                     i < TODAY && "border-primary bg-primary text-primary-foreground",
                     selected === i && "ring-2 ring-primary ring-offset-2 ring-offset-background",
                     locked && "text-muted-foreground"
