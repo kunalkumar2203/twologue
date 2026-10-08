@@ -26,7 +26,7 @@ export function WaitlistForm() {
 
     const url = import.meta.env.VITE_WAITLIST_URL as string | undefined;
 
-    // No endpoint configured — surface an honest error instead of faking success
+    // No endpoint configured for now, display error
     if (!url) {
       setStatus("error");
       setMessage(
@@ -88,7 +88,7 @@ export function WaitlistForm() {
         <Button
           type="submit"
           disabled={status === "loading"}
-          className="h-11 shrink-0 rounded-full"
+          className="h-11 shrink-0 rounded-full bg-accent text-on-accent shadow-sm hover:bg-accent/90"
         >
           {status === "loading" ? (
             <>
@@ -107,7 +107,7 @@ export function WaitlistForm() {
           aria-live="polite"
           className={cn(
             "flex items-center gap-1.5 text-sm",
-            status === "success" && "text-foreground",
+            status === "success" && "text-ink",
             status === "error" && "text-destructive"
           )}
         >
