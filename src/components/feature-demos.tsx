@@ -38,7 +38,7 @@ function useInView<T extends Element>() {
  
   return { ref, seen };
 }
- 
+
 function DemoCard({
   icon: Icon,
   title,
@@ -51,15 +51,15 @@ function DemoCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-w-0 flex-col rounded-2xl border bg-card p-4 sm:p-6">
+    <div className="flex min-w-0 flex-col rounded-2xl border border-ink-soft/20 bg-surface p-4 sm:p-6">
       <div className="flex items-center gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full border">
-          <Icon className="size-5 text-primary" />
+          <Icon className="size-5 text-accent" />
         </div>
         <h3 className="text-base font-semibold">{title}</h3>
       </div>
-      <p className="mt-3 text-sm text-muted-foreground">{text}</p>
-      <div className="mt-5 flex-1 rounded-2xl border bg-background p-4">
+      <p className="mt-3 text-sm text-ink-soft">{text}</p>
+      <div className="mt-5 flex-1 rounded-2xl border border-ink-soft/20 bg-page p-4">
         {children}
       </div>
     </div>
@@ -83,7 +83,7 @@ export function JournalDemo() {
       text="Take turns adding a line to a shared page. Every entry becomes a small keepsake you can reread."
     >
       <div ref={ref}>
-        <p className="mb-3 text-xs text-muted-foreground">Our weekend away</p>
+        <p className="mb-3 text-xs text-ink-soft">Our weekend away</p>
         <ul className="space-y-2.5">
           {JOURNAL_LINES.map((line, i) => (
             <li
@@ -94,7 +94,7 @@ export function JournalDemo() {
                 seen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
               )}
             >
-              <span className="w-9 shrink-0 pt-0.5 text-xs font-semibold text-muted-foreground">
+              <span className="w-9 shrink-0 pt-0.5 text-xs font-semibold text-ink-soft">
                 {line.who}
               </span>
               <span className="font-hand text-base leading-snug">
@@ -131,7 +131,7 @@ export function GameDemo() {
   return (
     <DemoCard
       icon={Dices}
-      title="Games that stay gentle"
+      title="Games that add a daily fun element"
       text="Quick this-or-that rounds. Both of you choose in private, then see where you land together."
     >
       <p className="text-sm font-semibold">{r.q}</p>
@@ -147,12 +147,12 @@ export function GameDemo() {
               aria-pressed={isYou}
               onClick={() => setPick(i)}
               className={cn(
-                "rounded-xl border p-3 text-left text-sm transition-colors hover:border-primary/60 disabled:cursor-default disabled:hover:border-border",
-                (isYou || isThem) && "border-primary/50 bg-card"
+                "rounded-xl border p-3 text-left text-sm transition-colors hover:border-accent/60 disabled:cursor-default disabled:hover:border-border",
+                (isYou || isThem) && "border-accent/50 bg-surface"
               )}
             >
               <span className="block font-medium">{opt}</span>
-              <span className="mt-1 block min-h-4 text-xs text-muted-foreground">
+              <span className="mt-1 block min-h-4 text-xs text-ink-soft">
                 {isYou && isThem && "You both"}
                 {isYou && !isThem && "You"}
                 {!isYou && isThem && "Them"}
@@ -164,7 +164,7 @@ export function GameDemo() {
       <div className="mt-3 flex min-h-8 items-center justify-between gap-3">
         <p
           aria-live="polite"
-          className="text-xs text-muted-foreground"
+          className="text-xs text-ink-soft"
         >
           {!done && "Pick one. They've already chosen."}
           {done && match && "Same pick. That's a good sign."}
@@ -202,8 +202,8 @@ export function CheckInDemo() {
             aria-pressed={mood === i}
             onClick={() => setMood(i)}
             className={cn(
-              "h-9 rounded-full border px-4 text-sm transition-colors hover:border-primary/60",
-              mood === i && "border-primary bg-primary text-primary-foreground hover:border-primary"
+              "h-9 rounded-full border px-4 text-sm transition-colors hover:border-accent/60",
+              mood === i && "border-accent bg-accent text-on-accent hover:border-accent"
             )}
           >
             {m}
@@ -212,7 +212,7 @@ export function CheckInDemo() {
       </div>
       <div className="mt-3 min-h-14" aria-live="polite">
         {mood === null ? (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-ink-soft">
             Their check-in appears once you've shared yours.
           </p>
         ) : (
@@ -221,7 +221,7 @@ export function CheckInDemo() {
               <span className="font-semibold">Them:</span> Okay.{" "}
               <span className="font-hand text-base">Long day, quiet night please.</span>
             </p>
-            <p className="mt-1.5 text-xs text-muted-foreground">
+            <p className="mt-1.5 text-xs text-ink-soft">
               {mood <= 1
                 ? "You're both running low. Maybe an early night."
                 : "You're in a good place. Ask how their day went."}
@@ -244,7 +244,7 @@ const DAYS = [
   { title: "Thank", prompt: "Name three things you're grateful for about us." },
   { title: "Look ahead", prompt: "What would make next week feel good for both of us?" },
 ];
-const TODAY = 2; // index of the current day in the demo
+const TODAY = 3; // index of the current day in the guided programs demo
  
 export function ProgramDemo() {
   const { ref, seen } = useInView<HTMLDivElement>();
@@ -257,11 +257,11 @@ export function ProgramDemo() {
       text="Short paths like “Seven days of listening”. One step a day, opening at a pace that suits you both."
     >
       <div ref={ref}>
-        <p className="text-xs text-muted-foreground">Seven days of listening</p>
+        <p className="text-xs text-ink-soft">Seven days of listening</p>
         <div className="relative mt-3">
-          <div className="absolute inset-x-3.5 top-1/2 h-0.5 -translate-y-1/2 bg-border sm:inset-x-4">
+          <div className="absolute inset-x-3.5 top-1/2 h-0.5 -translate-y-1/2 bg-ink-soft/30 sm:inset-x-4">
             <div
-              className="h-full bg-primary transition-[width] duration-1000 ease-out motion-reduce:transition-none"
+              className="h-full bg-accent transition-[width] duration-1000 ease-out motion-reduce:transition-none"
               style={{ width: seen ? `${(TODAY / (DAYS.length - 1)) * 100}%` : 0 }}
             />
           </div>
@@ -277,10 +277,10 @@ export function ProgramDemo() {
                   aria-pressed={selected === i}
                   onClick={() => setSelected(i)}
                   className={cn(
-                    "flex size-7 items-center justify-center rounded-full border bg-background text-xs transition-colors sm:size-8",
-                    i < TODAY && "border-primary bg-primary text-primary-foreground",
-                    selected === i && "ring-2 ring-primary ring-offset-2 ring-offset-background",
-                    locked && "text-muted-foreground"
+                    "flex size-7 items-center justify-center rounded-full border border-ink-soft/20 bg-page text-xs transition-colors sm:size-8",
+                    i < TODAY && "border-accent bg-accent text-on-accent",
+                    selected === i && "ring-2 ring-accent ring-offset-2 ring-offset-page",
+                    locked && "text-ink-soft"
                   )}
                 >
                   {i < TODAY ? <Check className="size-3.5" /> : locked ? <Lock className="size-3" /> : i + 1}

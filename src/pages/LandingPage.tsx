@@ -1,4 +1,6 @@
 import {
+  ArrowDown,
+  ArrowRight,
   BookHeart,
   Dices,
   HeartPulse,
@@ -40,7 +42,7 @@ const RITUAL_STEPS = [
 
 export default function App() {
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="min-h-dvh bg-page text-ink">
       <Header />
       <main>
         <Hero />
@@ -57,7 +59,7 @@ export default function App() {
 
 function Header() {
   return (
-    <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-10 border-b bg-page/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
         <span className="font-heading text-xl font-semibold">
           {BRAND.name}
@@ -71,7 +73,7 @@ function Header() {
 const OVERVIEW = [
   { icon: MessageCircleHeart, title: "A daily question", text: "One gentle prompt each morning" },
   { icon: BookHeart, title: "A shared journal", text: "Write a page together" },
-  { icon: Dices, title: "Mini games", text: "This-or-that and guessing rounds" },
+  { icon: Dices, title: "Gentle games", text: "This-or-that and guessing rounds" },
   { icon: HeartPulse, title: "Check-ins", text: "How the week is really going" },
   { icon: Route, title: "Guided programs", text: "Short paths, one step a day" },
 ];
@@ -87,15 +89,15 @@ function Hero() {
     <section className="px-4 pt-12 pb-10 sm:px-6 sm:pt-16 lg:pt-24">
       <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
         <div className="text-center lg:text-left">
-          <span className="inline-block rounded-full border px-3 py-1 text-xs text-muted-foreground">
+          <span className="inline-block text-xs font-medium uppercase tracking-[0.18em] text-ink-soft">
             {BRAND.tagline}
           </span>
           <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
             A small daily space for the two of you.
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-base text-muted-foreground sm:text-lg lg:mx-0">
-            {BRAND.name} is a space for couples who want to stay close without
-            the pressure. A question, a shared journal, mini games and
+          <p className="mx-auto mt-4 max-w-lg text-base text-ink-soft sm:text-lg lg:mx-0">
+            {BRAND.name} is an app for couples who want to stay close without
+            the pressure. A question, a shared journal, gentle games and
             check-ins, in about five minutes a day.
           </p>
 
@@ -104,7 +106,7 @@ function Hero() {
             className="mt-5 flex flex-wrap justify-center gap-2 lg:justify-start"
           >
             {AUDIENCE.map((a) => (
-              <li key={a.title} className="rounded-full border px-3 py-1 text-xs text-muted-foreground">
+              <li key={a.title} className="rounded-md bg-surface px-2.5 py-1 text-xs text-ink-soft">
                 {a.title}
               </li>
             ))}
@@ -113,21 +115,23 @@ function Hero() {
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <a
               href="#waitlist"
-              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-7 text-sm font-semibold text-on-accent shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 motion-reduce:transition-none"
             >
               Join the waitlist
+              <ArrowRight className="size-4" aria-hidden="true" />
             </a>
             <a
               href="#how"
-              className="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-semibold transition-colors hover:bg-card"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink px-7 text-sm font-semibold text-page shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 motion-reduce:transition-none"
             >
               See how it works
+              <ArrowDown className="size-4" aria-hidden="true" />
             </a>
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-md rounded-2xl border bg-card p-4 sm:p-5 lg:mr-0">
-          <p className="mb-3 text-sm font-semibold text-muted-foreground">
+        <div className="mx-auto w-full max-w-md rounded-2xl border border-ink-soft/20 bg-surface p-4 sm:p-5 lg:mr-0">
+          <p className="mb-3 text-sm font-semibold text-ink-soft">
             Everything in {BRAND.name}
           </p>
           <ul className="space-y-2">
@@ -135,14 +139,14 @@ function Hero() {
               <li
                 key={item.title}
                 style={{ animationDelay: `${i * 90}ms` }}
-                className="flex items-center gap-3 rounded-xl border bg-background p-3 duration-500 animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards motion-reduce:animate-none"
+                className="flex items-center gap-3 rounded-xl border border-ink-soft/20 bg-page p-3 duration-500 animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards motion-reduce:animate-none"
               >
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-full border">
-                  <item.icon className="size-4 text-primary" />
+                  <item.icon className="size-4 text-accent" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.text}</p>
+                  <p className="text-xs text-ink-soft">{item.text}</p>
                 </div>
               </li>
             ))}
@@ -160,14 +164,14 @@ function AudienceSection() {
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           Made for two, wherever you are
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-center text-sm text-muted-foreground sm:text-base">
+        <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink-soft sm:text-base">
           Calm, private and never competitive. No streaks, no scores to beat.
         </p>
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           {AUDIENCE.map((a) => (
-            <div key={a.title} className="rounded-2xl border bg-card p-4 sm:p-5">
+            <div key={a.title} className="rounded-2xl border border-ink-soft/20 bg-surface p-4 sm:p-5">
               <h3 className="text-base font-semibold">{a.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{a.text}</p>
+              <p className="mt-2 text-sm text-ink-soft">{a.text}</p>
             </div>
           ))}
         </div>
@@ -183,7 +187,7 @@ function RitualSection() {
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           A small ritual, every day
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-center text-sm text-muted-foreground sm:text-base">
+        <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink-soft sm:text-base">
           Three quiet steps that take under five minutes.
         </p>
 
@@ -194,10 +198,10 @@ function RitualSection() {
               className="flex flex-col items-center text-center sm:items-start sm:text-left"
             >
               <div className="flex size-12 items-center justify-center rounded-full border">
-                <step.icon className="size-5 text-primary" />
+                <step.icon className="size-5 text-accent" />
               </div>
               <h3 className="mt-4 text-base font-semibold">{step.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">
+              <p className="mt-1.5 text-sm text-ink-soft">
                 {step.text}
               </p>
             </div>
@@ -208,7 +212,7 @@ function RitualSection() {
           <h3 className="text-center text-lg font-semibold sm:text-xl">
             Answer privately. Reveal together.
           </h3>
-          <p className="mx-auto mb-6 mt-2 max-w-md text-center text-sm text-muted-foreground sm:text-base">
+          <p className="mx-auto mb-6 mt-2 max-w-md text-center text-sm text-ink-soft sm:text-base">
             Try it: tap reveal to see how a shared moment lands.
           </p>
           <RevealWidget />
@@ -225,7 +229,7 @@ function ShowcaseSection() {
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           The daily question is just the start
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-center text-sm text-muted-foreground sm:text-base">
+        <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink-soft sm:text-base">
           Four more ways to stay close. Try them right here.
         </p>
 
@@ -269,9 +273,9 @@ function FeatureSection() {
 
 function FeatureItem({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-2xl border bg-card p-4 sm:p-5">
+    <div className="rounded-2xl border border-ink-soft/20 bg-surface p-4 sm:p-5">
       <h3 className="text-base font-semibold">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{text}</p>
+      <p className="mt-2 text-sm text-ink-soft">{text}</p>
     </div>
   );
 }
@@ -286,7 +290,7 @@ function WaitlistSection() {
         <h2 className="text-xl font-semibold sm:text-2xl">
           Be first to try it
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground sm:text-base">
+        <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft sm:text-base">
           Leave your email and we'll let you know when {BRAND.name} is ready.
           No spam, just one note when the doors open.
         </p>
@@ -307,23 +311,23 @@ function Footer() {
           <span className="font-heading text-lg font-semibold">
             {BRAND.name}
           </span>
-          <nav className="flex items-center gap-4 text-sm text-muted-foreground">
-            <a href="#" className="transition-colors hover:text-foreground">
+          <nav className="flex items-center gap-4 text-sm text-ink-soft">
+            <a href="#" className="transition-colors hover:text-ink">
               Help
             </a>
             <span aria-hidden="true">·</span>
-            <a href="#" className="transition-colors hover:text-foreground">
+            <a href="#" className="transition-colors hover:text-ink">
               Privacy
             </a>
           </nav>
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground sm:text-left">
+        <p className="mt-6 text-center text-xs text-ink-soft sm:text-left">
           {BRAND.name} is not therapy or a crisis service. If you need urgent
           support, please reach out to a qualified professional in your area.
         </p>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground sm:text-left">
+        <p className="mt-4 text-center text-xs text-ink-soft sm:text-left">
           © {new Date().getFullYear()} {BRAND.name}. {BRAND.tagline}.
         </p>
       </div>

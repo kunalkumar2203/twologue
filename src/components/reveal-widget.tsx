@@ -40,15 +40,15 @@ export function RevealWidget() {
 
   return (
     <div
-      className="mx-auto w-full max-w-lg rounded-2xl border bg-card p-4 sm:p-6"
+      className="mx-auto w-full max-w-lg rounded-2xl border border-ink-soft/20 bg-surface p-4 sm:p-6"
       role="group"
       aria-label="Paired response demo"
     >
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm font-semibold text-muted-foreground">
+        <p className="text-sm font-semibold text-ink-soft">
           Today's question
         </p>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-ink-soft">
           A moment you felt closest
         </span>
       </div>
@@ -83,7 +83,7 @@ export function RevealWidget() {
         ) : (
           <Button
             size="sm"
-            className="rounded-full"
+            className="rounded-full bg-accent text-on-accent shadow-sm hover:bg-accent/90"
             onClick={handleReveal}
           >
             <Heart className="size-4" />
@@ -92,7 +92,7 @@ export function RevealWidget() {
         )}
       </div>
 
-      <p className="mt-4 text-center text-xs text-muted-foreground">
+      <p className="mt-4 text-center text-xs text-ink-soft">
         Both answers stay hidden until you both tap reveal.
       </p>
     </div>
@@ -115,15 +115,15 @@ function AnswerCard({
   // Reduced-motion: no flip, just fade the answer in
   if (reducesMotion) {
     return (
-      <div className="rounded-2xl border bg-background p-4">
+      <div className="rounded-2xl border border-ink-soft/20 bg-page p-4">
         <p className="mb-2 text-sm font-semibold">{name}</p>
         {hidden ? (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <p className="flex items-center gap-2 text-sm text-ink-soft">
             <Lock className="size-3.5" />
             Hidden until revealed
           </p>
         ) : (
-          <p className="font-hand text-base text-foreground">{answer}</p>
+          <p className="font-hand text-base text-ink">{answer}</p>
         )}
       </div>
     );
@@ -141,19 +141,19 @@ function AnswerCard({
         )}
       >
         {/* Back of card (hidden state) */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl border bg-background p-4 [backface-visibility:hidden]">
-          <Lock className="size-5 text-muted-foreground" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl border border-ink-soft/20 bg-page p-4 [backface-visibility:hidden]">
+          <Lock className="size-5 text-ink-soft" />
           <p className="text-sm font-semibold">{name}</p>
-          <p className="text-xs text-muted-foreground">Hidden until revealed</p>
+          <p className="text-xs text-ink-soft">Hidden until revealed</p>
         </div>
 
         {/* Front of card (revealed state) */}
-        <div className="absolute inset-0 flex flex-col justify-center rounded-2xl border border-primary/30 bg-background p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        <div className="absolute inset-0 flex flex-col justify-center rounded-2xl border border-accent/30 bg-page p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <div className="mb-1.5 flex items-center gap-1.5">
-            <Eye className="size-3.5 text-primary" />
+            <Eye className="size-3.5 text-accent" />
             <p className="text-sm font-semibold">{name}</p>
           </div>
-          <p className="font-hand text-base leading-snug text-foreground">
+          <p className="font-hand text-base leading-snug text-ink">
             {answer}
           </p>
         </div>
