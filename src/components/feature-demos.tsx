@@ -132,7 +132,7 @@ export function GameDemo() {
     <DemoCard
       icon={Dices}
       title="Games that add a daily fun element"
-      text="Quick this-or-that rounds. Both of you choose in private, then see where you land together."
+      text="Quick this-or-that rounds. Both of you take turns answering, then see where you land together."
     >
       <p className="text-sm font-semibold">{r.q}</p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">

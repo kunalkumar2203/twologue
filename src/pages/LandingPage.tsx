@@ -25,7 +25,7 @@ const RITUAL_STEPS = [
   {
     icon: MessageCircleHeart,
     title: "A question a day",
-    text: "One gentle prompt lands each morning. Nothing long, nothing heavy.",
+    text: "One question lands each morning. Nothing long, nothing heavy.",
   },
   {
     icon: Lock,
@@ -97,8 +97,7 @@ function Hero() {
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-base text-ink-soft sm:text-lg lg:mx-0">
             {BRAND.name} is an app for couples who want to stay close without
-            the pressure. A question, a shared journal, gentle games and
-            check-ins, in about five minutes a day.
+            the pressure. A daily question, shared journal, mini games and much more, in about five minutes a day.
           </p>
 
           <ul
@@ -188,7 +187,7 @@ function RitualSection() {
           A small ritual, every day
         </h2>
         <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink-soft sm:text-base">
-          Three quiet steps that take under five minutes.
+          Three easy steps that take under five minutes.
         </p>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
@@ -259,11 +258,11 @@ function FeatureSection() {
           />
           <FeatureItem
             title="Small rituals, not streaks"
-            text="There are no breaking streaks or penalties. Just a calm daily question that invites you to check in with each other."
+            text="There are no breaking streaks or penalties. Just calm and fun daily activities that invite you to check in with each other."
           />
           <FeatureItem
-            title="More than questions"
-            text="Journaling, games, check-ins and guided programs all follow the same idea: each of you answers privately, then you see it together. Pick what fits your week."
+            title="More than just questions"
+            text="Journaling, games, check-ins, guided programs and much more, pick what fits your week."
           />
         </div>
       </div>
@@ -321,11 +320,6 @@ function Footer() {
             </a>
           </nav>
         </div>
-
-        <p className="mt-6 text-center text-xs text-ink-soft sm:text-left">
-          {BRAND.name} is not therapy or a crisis service. If you need urgent
-          support, please reach out to a qualified professional in your area.
-        </p>
 
         <p className="mt-4 text-center text-xs text-ink-soft sm:text-left">
           © {new Date().getFullYear()} {BRAND.name}. {BRAND.tagline}.
