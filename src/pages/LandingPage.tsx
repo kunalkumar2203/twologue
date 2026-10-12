@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { Link } from "react-router";
 import { BRAND } from "@/config/brand";
 import { RevealWidget } from "@/components/reveal-widget";
 import { WaitlistForm } from "@/components/waitlist-form";
@@ -64,7 +65,15 @@ function Header() {
         <span className="font-heading text-xl font-semibold">
           {BRAND.name}
         </span>
+        <div className="flex items-center gap-2">
+        <Link
+          to="/auth"
+          className="rounded-full px-3 py-1.5 text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+        >
+          Sign in
+        </Link>
         <ThemePicker />
+      </div>
       </div>
     </header>
   );
