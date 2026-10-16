@@ -9,6 +9,7 @@ import AuthPage from "./pages/AuthPage";
 import Settings from "./pages/Settings";
 import TodayPage from "./features/today/TodayPage";
 import { USE_MOCK_API } from "./features/today/api";
+import { MoodProvider } from "./features/today/MoodContext";
 import LandingPage from "./pages/LandingPage";
 
 const SkipGate = ({ children }: { children: ReactNode }) => <>{children}</>;
@@ -24,11 +25,24 @@ export default createBrowserRouter([
   { path: "/auth", element: <AuthPage /> },
   {
     path: "/join/:token",
-    element: <Gate><div className="flex min-h-dvh items-center justify-center bg-page px-4 py-10 text-ink"><JoinRoute /></div></Gate>,
+    element: (
+      <Gate>
+        <div className="flex min-h-dvh items-center justify-center bg-page px-4 py-10 text-ink">
+          <JoinRoute />
+        </div>
+      </Gate>
+    ),
   },
   {
     path: "/app",
-    element: <Gate><AppLayout /></Gate>,
+    // MoodProvider wraps the whole app shell so AppLayout header can read mood state
+    element: (
+      <Gate>
+        <MoodProvider>
+          <AppLayout />
+        </MoodProvider>
+      </Gate>
+    ),
     children: [
       { index: true, element: <TodayPage /> },
       ...TABS.slice(1).map((tab) => ({

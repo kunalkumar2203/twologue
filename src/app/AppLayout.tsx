@@ -3,21 +3,40 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { BRAND } from "@/config/brand";
 import { useAuth } from "@/auth/AuthProvider";
 import { TABS } from "./tabs";
+import { MoodBubble, useMood } from "@/features/today/MoodContext";
 
 // Frame around every screen: top bar, the screen itself, bottom tab bar
 export default function AppLayout() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { partnerMood, partnerName } = useMood();
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col">
-      <header className="flex items-center justify-between px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 lg:px-8">
-        <div className="flex min-w-0 flex-col leading-none">
-          <span className="font-heading text-3xl font-semibold">{BRAND.name}</span>
-          <span className="mt-1 text-[15px] font-medium tracking-[0.18em] text-ink-soft">Between Us</span>
+      <header className="flex items-center justify-between px-4 pb-3 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 lg:px-8">
+        {/* Left: Brand + your mood bubble */}
+        <div className="flex items-center gap-3">
+          {/* Mood bubble for the current user */}
+          <MoodBubble side="left" />
+
+          <div className="flex min-w-0 flex-col leading-none">
+            <span className="font-heading text-3xl font-semibold">{BRAND.name}</span>
+            <span className="mt-1 text-[15px] font-medium tracking-[0.18em] text-ink-soft">
+              Between Us
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <Link to="/app/settings" aria-label="Settings" className="rounded-full p-2 text-ink-soft hover:bg-surface hover:text-ink">
+
+        {/* Right: partner mood + settings + sign-out */}
+        <div className="flex items-center gap-2">
+          {/* Partner mood bubble */}
+          {partnerMood && <MoodBubble side="right" partnerName={partnerName} />}
+
+          <Link
+            to="/app/settings"
+            aria-label="Settings"
+            className="rounded-full p-2 text-ink-soft hover:bg-surface hover:text-ink"
+          >
             <Settings size={22} />
           </Link>
           <button
