@@ -4,15 +4,12 @@ import {
   BookHeart,
   Dices,
   HeartPulse,
-  Lock,
   MessageCircleHeart,
   Route,
-  Sparkles,
 } from "lucide-react";
 
 import { Link } from "react-router";
 import { BRAND } from "@/config/brand";
-import { RevealWidget } from "@/components/reveal-widget";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { ThemePicker } from "@/components/theme-picker";
 import {
@@ -22,25 +19,6 @@ import {
   ProgramDemo,
 } from "@/components/feature-demos";
 
-const RITUAL_STEPS = [
-  {
-    icon: MessageCircleHeart,
-    title: "A question a day",
-    text: "One question lands each morning. Nothing long, nothing heavy.",
-  },
-  {
-    icon: Lock,
-    title: "Answer in private",
-    text: "Both partners write on their own. No peeking until it's time.",
-  },
-  {
-    icon: Sparkles,
-    title: "Reveal together",
-    text: "When you both tap reveal, the answers appear side by side.",
-  },
-];
-
-
 export default function App() {
   return (
     <div className="min-h-dvh bg-page text-ink">
@@ -48,7 +26,6 @@ export default function App() {
       <main>
         <Hero />
         <AudienceSection />
-        <RitualSection />
         <ShowcaseSection />
         <FeatureSection />
         <WaitlistSection />
@@ -61,7 +38,7 @@ export default function App() {
 function Header() {
   return (
     <header className="sticky top-0 z-10 border-b bg-page/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6 sm:py-3">
         <span className="font-heading text-xl font-semibold">
           {BRAND.name}
         </span>
@@ -82,7 +59,7 @@ function Header() {
 const OVERVIEW = [
   { icon: MessageCircleHeart, title: "A daily question", text: "One gentle prompt each morning" },
   { icon: BookHeart, title: "A shared journal", text: "Write a page together" },
-  { icon: Dices, title: "Gentle games", text: "This-or-that and guessing rounds" },
+  { icon: Dices, title: "Mini games", text: "This-or-that and guessing rounds" },
   { icon: HeartPulse, title: "Check-ins", text: "How the week is really going" },
   { icon: Route, title: "Guided programs", text: "Short paths, one step a day" },
 ];
@@ -95,45 +72,49 @@ const AUDIENCE = [
 
 function Hero() {
   return (
-    <section className="px-4 pt-12 pb-10 sm:px-6 sm:pt-16 lg:pt-24">
+    <section className="px-4 pt-4 pb-10 sm:px-6 sm:py-14 lg:pt-20 lg:pb-16">
       <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
         <div className="text-center lg:text-left">
           <span className="inline-block text-xs font-medium uppercase tracking-[0.18em] text-ink-soft">
             {BRAND.tagline}
           </span>
-          <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+          <h1 className="mt-4 text-2xl font-semibold tracking-tight sm:mt-5 sm:text-4xl lg:text-5xl">
             A small daily space for the two of you.
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-base text-ink-soft sm:text-lg lg:mx-0">
+          <p className="mx-auto mt-4 max-w-lg text-sm text-ink-soft sm:mt-4 sm:text-lg lg:mx-0">
             {BRAND.name} is an app for couples who want to stay close without
             the pressure. A daily question, shared journal, mini games and much more, in about five minutes a day.
           </p>
 
           <ul
             aria-label="Who it's for"
-            className="mt-5 flex flex-wrap justify-center gap-2 lg:justify-start"
+            className="mt-4 flex flex-wrap justify-center gap-1.5 sm:mt-5 sm:gap-2 lg:justify-start"
           >
             {AUDIENCE.map((a) => (
-              <li key={a.title} className="rounded-md bg-surface px-2.5 py-1 text-xs text-ink-soft">
+              <li key={a.title} className="rounded-md bg-surface px-2 py-1 text-[11px] text-ink-soft sm:px-2.5 sm:text-xs">
                 {a.title}
               </li>
             ))}
           </ul>
 
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+          <div className="mx-auto mt-6 flex w-full max-w-md flex-col items-center justify-center gap-1 sm:mt-8 sm:flex-row sm:gap-3">
             <a
               href="#waitlist"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-7 text-sm font-semibold text-on-accent shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 motion-reduce:transition-none"
+              className="group inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold leading-none text-on-accent shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:translate-y-0 motion-reduce:transition-none sm:h-14 sm:w-52 sm:px-8 sm:text-base"
             >
               Join the waitlist
-              <ArrowRight className="size-4" aria-hidden="true" />
+              <span className="flex size-5 shrink-0 items-center justify-center">
+                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1.5 group-focus-visible:translate-x-1.5 motion-reduce:transition-none" aria-hidden="true" />
+              </span>
             </a>
             <a
               href="#how"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink px-7 text-sm font-semibold text-page shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 motion-reduce:transition-none"
+              className="group inline-flex h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-ink px-6 text-sm font-semibold leading-none text-page shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:translate-y-0 motion-reduce:transition-none sm:h-14 sm:w-52 sm:px-8 sm:text-base"
             >
               See how it works
-              <ArrowDown className="size-4" aria-hidden="true" />
+              <span className="flex size-5 shrink-0 items-center justify-center">
+                <ArrowDown className="size-4 transition-transform duration-300 group-hover:translate-y-1.5 group-focus-visible:translate-y-1.5 motion-reduce:transition-none" aria-hidden="true" />
+              </span>
             </a>
           </div>
         </div>
@@ -167,7 +148,7 @@ function Hero() {
 
 function AudienceSection() {
   return (
-    <section className="px-4 py-12 sm:px-6 lg:py-16">
+    <section className="px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-5xl">
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           Made for two, wherever you are
@@ -188,51 +169,9 @@ function AudienceSection() {
   );
 }
 
-function RitualSection() {
-  return (
-    <section id="how" className="scroll-mt-20 px-4 py-12 sm:px-6 lg:py-16">
-      <div className="mx-auto max-w-5xl">
-        <h2 className="text-center text-xl font-semibold sm:text-2xl">
-          A small ritual, every day
-        </h2>
-        <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink-soft sm:text-base">
-          Three easy steps that take under five minutes.
-        </p>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
-          {RITUAL_STEPS.map((step, i) => (
-            <div
-              key={i}
-              className="flex flex-col items-center text-center sm:items-start sm:text-left"
-            >
-              <div className="flex size-12 items-center justify-center rounded-full border">
-                <step.icon className="size-5 text-accent" />
-              </div>
-              <h3 className="mt-4 text-base font-semibold">{step.title}</h3>
-              <p className="mt-1.5 text-sm text-ink-soft">
-                {step.text}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-12 sm:mt-14">
-          <h3 className="text-center text-lg font-semibold sm:text-xl">
-            Answer privately. Reveal together.
-          </h3>
-          <p className="mx-auto mb-6 mt-2 max-w-md text-center text-sm text-ink-soft sm:text-base">
-            Try it: tap reveal to see how a shared moment lands.
-          </p>
-          <RevealWidget />
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function ShowcaseSection() {
   return (
-    <section className="px-4 py-12 sm:px-6 lg:py-16">
+    <section className="px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-5xl">
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           The daily question is just the start
@@ -254,7 +193,7 @@ function ShowcaseSection() {
 
 function FeatureSection() {
   return (
-    <section className="px-4 py-12 sm:px-6 lg:py-16">
+    <section className="px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-3xl">
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           Why {BRAND.name}
@@ -292,7 +231,7 @@ function WaitlistSection() {
   return (
     <section
       id="waitlist"
-      className="scroll-mt-20 px-4 py-14 sm:px-6 lg:py-20"
+      className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14 lg:py-16"
     >
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-xl font-semibold sm:text-2xl">
