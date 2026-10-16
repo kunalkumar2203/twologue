@@ -26,8 +26,8 @@ export function ThemePicker() {
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            size="sm"
-            className="rounded-full"
+            size="icon"
+            className="rounded-full sm:h-9 sm:w-auto sm:px-3"
             aria-label="Choose a colour theme"
           >
             <span
