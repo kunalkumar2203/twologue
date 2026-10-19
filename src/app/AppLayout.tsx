@@ -1,4 +1,4 @@
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, UserRound } from "lucide-react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router";
 import { BRAND } from "@/config/brand";
 import { useAuth } from "@/auth/AuthProvider";
@@ -27,17 +27,17 @@ export default function AppLayout() {
           </div>
         </div>
 
-        {/* Right: partner mood + settings + sign-out */}
+        {/* Right: partner mood + profile + sign-out */}
         <div className="flex items-center gap-2">
           {/* Partner mood bubble */}
           {partnerMood && <MoodBubble side="right" partnerName={partnerName} />}
 
           <Link
-            to="/app/settings"
-            aria-label="Settings"
+            to="/app/profile"
+            aria-label="Profile"
             className="rounded-full p-2 text-ink-soft hover:bg-surface hover:text-ink"
           >
-            <Settings size={22} />
+            <UserRound size={22} />
           </Link>
           <button
             type="button"

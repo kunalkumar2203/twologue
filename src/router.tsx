@@ -7,6 +7,7 @@ import { RequireAuth } from "./auth/RequireAuth";
 import PairingPage, { JoinCouplePage } from "./features/couples/PairingPage";
 import AuthPage from "./pages/AuthPage";
 import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import TodayPage from "./features/today/TodayPage";
 import { USE_MOCK_API } from "./features/today/api";
 import { MoodProvider } from "./features/today/MoodContext";
@@ -50,6 +51,7 @@ export default createBrowserRouter([
         element: tab.path === "us" ? <PairingPage /> : <Placeholder title={tab.label} blurb={tab.blurb} />,
       })),
       { path: "settings", element: <Settings /> },
+      { path: "profile", element: <Profile /> },
     ],
   },
 ]);

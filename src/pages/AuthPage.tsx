@@ -19,7 +19,7 @@ export default function AuthPage() {
   const [error, setError] = React.useState("");
   const [notice, setNotice] = React.useState("");
   const requestedNext = params.get("next");
-  const next = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/app/us";
+  const next = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/app";
 
   React.useEffect(() => {
     if (user) navigate(next, { replace: true });
