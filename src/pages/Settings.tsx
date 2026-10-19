@@ -1,6 +1,7 @@
 import tokens from "@/theme/tokens.json";
 import { useTheme } from "@/theme/ThemeProvider";
 import { THEMES } from "@/theme/themes";
+import { SharedFeatureSettings } from "@/features/couples/SharedFeatureSettings";
 
 const MODES = ["light", "dark"] as const;
 
@@ -49,6 +50,8 @@ export default function Settings() {
           );
         })}
       </ul>
+
+      <SharedFeatureSettings />
     </section>
   );
 }
