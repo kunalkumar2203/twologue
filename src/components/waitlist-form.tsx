@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,7 +124,7 @@ export function WaitlistForm() {
         <Button
           type="submit"
           disabled={status === "loading"}
-          className="h-11 shrink-0 rounded-full bg-accent text-on-accent shadow-sm hover:bg-accent/90"
+          className="group relative h-11 shrink-0 cursor-pointer rounded-full bg-accent text-on-accent shadow-sm transition-[background-color,color,box-shadow] duration-300 hover:bg-ink hover:text-page hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:bg-ink active:text-page motion-reduce:transition-none"
         >
           {status === "loading" ? (
             <>
@@ -132,7 +132,12 @@ export function WaitlistForm() {
               Joining...
             </>
           ) : (
-            "Join the waitlist"
+            <>
+              <span>Join the waitlist</span>
+              <span className="relative flex size-4 items-center justify-center" aria-hidden="true">
+                <ArrowRight className="size-4" />
+              </span>
+            </>
           )}
         </Button>
       </div>

@@ -10,6 +10,7 @@ import {
 
 import { Link } from "react-router";
 import { BRAND } from "@/config/brand";
+import { RevealWidget } from "@/components/reveal-widget";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { ThemePicker } from "@/components/theme-picker";
 import {
@@ -26,6 +27,7 @@ export default function LandingPage() {
       <main>
         <Hero />
         <AudienceSection />
+        <RitualSection />
         <ShowcaseSection />
         <FeatureSection />
         <WaitlistSection />
@@ -169,9 +171,28 @@ function AudienceSection() {
   );
 }
 
-function ShowcaseSection() {
+function RitualSection() {
   return (
     <section id="how" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+      <div className="mx-auto max-w-5xl">
+        <h2 className="text-center text-xl font-semibold sm:text-2xl">
+          A small ritual, every day. Answer privately, reveal together.
+        </h2>
+        <p className="mx-auto mt-2 max-w-md text-center text-sm text-ink-soft sm:text-base">
+          Try it: tap reveal to see how a shared moment lands.
+        </p>
+
+        <div className="mt-8">
+          <RevealWidget />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ShowcaseSection() {
+  return (
+    <section className="px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-5xl">
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           The daily question is just the start
