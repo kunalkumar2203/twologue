@@ -19,7 +19,7 @@ import {
   ProgramDemo,
 } from "@/components/feature-demos";
 
-export default function App() {
+export default function LandingPage() {
   return (
     <div className="min-h-dvh bg-page text-ink">
       <Header />
@@ -72,23 +72,23 @@ const AUDIENCE = [
 
 function Hero() {
   return (
-    <section className="px-4 pt-4 pb-10 sm:px-6 sm:py-14 lg:pt-20 lg:pb-16">
-      <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
-        <div className="text-center lg:text-left">
+    <section className="px-4 pt-8 pb-10 sm:px-6 sm:py-14 lg:pt-20 lg:pb-16">
+      <div className="mx-auto grid max-w-5xl items-center gap-10 md:grid-cols-2 lg:gap-14">
+        <div className="text-center md:text-left">
           <span className="inline-block text-xs font-medium uppercase tracking-[0.18em] text-ink-soft">
             {BRAND.tagline}
           </span>
           <h1 className="mt-4 text-2xl font-semibold tracking-tight sm:mt-5 sm:text-4xl lg:text-5xl">
             A small daily space for the two of you.
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-sm text-ink-soft sm:mt-4 sm:text-lg lg:mx-0">
+          <p className="mx-auto mt-4 max-w-lg text-sm text-ink-soft sm:mt-4 sm:text-lg md:mx-0">
             {BRAND.name} is an app for couples who want to stay close without
             the pressure. A daily question, shared journal, mini games and much more, in about five minutes a day.
           </p>
 
           <ul
             aria-label="Who it's for"
-            className="mt-4 flex flex-wrap justify-center gap-1.5 sm:mt-5 sm:gap-2 lg:justify-start"
+            className="mt-4 flex flex-wrap justify-center gap-1.5 sm:mt-5 sm:gap-2 md:justify-start"
           >
             {AUDIENCE.map((a) => (
               <li key={a.title} className="rounded-md bg-surface px-2 py-1 text-[11px] text-ink-soft sm:px-2.5 sm:text-xs">
@@ -171,7 +171,7 @@ function AudienceSection() {
 
 function ShowcaseSection() {
   return (
-    <section className="px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
+    <section id="how" className="scroll-mt-20 px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-5xl">
         <h2 className="text-center text-xl font-semibold sm:text-2xl">
           The daily question is just the start
