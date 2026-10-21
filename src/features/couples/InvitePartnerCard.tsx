@@ -48,11 +48,16 @@ export default function InvitePartnerCard() {
 
   async function share() {
     if (!link) return;
-    if (navigator.share) {
-      await navigator.share({ title: "Your Twologue invitation", text: `Join me on Twologue with code ${code}.`, url: link });
-      return;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Your Twologue invitation", text: `Join me on Twologue with code ${code}.`, url: link });
+        return;
+      }
+      await copy(link, "link");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setNotice("We couldn't share that invitation. You can copy the link instead.");
     }
-    await copy(link, "link");
   }
 
   async function create() {
