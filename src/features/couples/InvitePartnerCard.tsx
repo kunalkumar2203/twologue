@@ -23,7 +23,6 @@ export default function InvitePartnerCard() {
   const [copied, setCopied] = React.useState("");
   const [notice, setNotice] = React.useState("");
 
-  const couple = coupleQuery.data?.couple;
   const partner = coupleQuery.data?.partner;
   const pendingInvite = coupleQuery.data?.pendingInvite;
   const link = code ? `${window.location.origin}/join/${code}` : "";
@@ -69,7 +68,11 @@ export default function InvitePartnerCard() {
       setCode(formatted);
       setNotice("Your invitation is ready to share.");
     } catch (error) {
-      setNotice(pairingMessage(error instanceof Error && error.message === "already_paired" ? "already_paired_inviter" : error));
+      const rawMessage = error instanceof Error ? error.message : "";
+      const message = rawMessage === "already_paired"
+        ? pairingMessage("already_paired_inviter")
+        : pairingMessage(error);
+      setNotice(message);
     }
   }
 

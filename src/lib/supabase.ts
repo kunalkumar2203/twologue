@@ -1,3 +1,5 @@
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
 export type AuthUser = {
   id: string;
   email?: string;
@@ -21,37 +23,74 @@ type SupabaseAuthResponse = Omit<Partial<AuthSession>, "user"> & {
   token_type?: string;
 };
 
+type SupabaseDatabase = {
+  public: {
+    Tables: {
+      couples: { Row: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [] };
+      invites: { Row: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [] };
+      profiles: { Row: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [] };
+    };
+    Views: Record<string, never>;
+    Functions: {
+      create_invite: { Args: { p_target_email?: string | null }; Returns: string };
+      preview_invite: { Args: { p_code: string }; Returns: Record<string, unknown>[] };
+      accept_invite: { Args: { p_code: string }; Returns: string };
+      cancel_invite: { Args: Record<string, never>; Returns: null };
+      unlink_couple: { Args: Record<string, never>; Returns: null };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};
+
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, "");
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const SESSION_KEY = "twologue-auth-session";
 
 export const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
-
-export function supabaseForSession(session: AuthSession) {
-  requireConfig();
-  return createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
-    auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
-    global: { headers: { Authorization: `Bearer ${session.access_token}` } },
-  });
-}
-
 export const supabaseSetupMessage =
   "Connect a Supabase project by setting VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.local. See SUPABASE_SETUP.md for the database setup steps.";
 
 export class SupabaseRequestError extends Error {
   readonly status?: number;
+  readonly code?: string;
+  readonly details?: string;
+  readonly hint?: string;
 
-  constructor(message: string, status?: number) {
+  constructor(message: string, status?: number, code?: string, details?: string, hint?: string) {
     super(message);
     this.name = "SupabaseRequestError";
     this.status = status;
+    this.code = code;
+    this.details = details;
+    this.hint = hint;
   }
 }
 
 function requireConfig() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    throw new SupabaseRequestError(supabaseSetupMessage);
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new SupabaseRequestError(supabaseSetupMessage);
+}
+
+let activeAccessToken = "";
+let sessionClient: SupabaseClient<SupabaseDatabase> | null = null;
+
+export function supabaseForSession(session: AuthSession) {
+  requireConfig();
+  activeAccessToken = session.access_token;
+  if (!sessionClient) {
+    sessionClient = createClient<SupabaseDatabase>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+      auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+      global: {
+        fetch: (input, init) => {
+          const headers = new Headers(init?.headers);
+          headers.set("Authorization", `Bearer ${activeAccessToken}`);
+          return fetch(input, { ...init, headers });
+        },
+      },
+    });
   }
+  sessionClient.realtime.setAuth(session.access_token);
+  return sessionClient;
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
@@ -64,13 +103,25 @@ async function parseResponse<T>(response: Response): Promise<T> {
       data = raw;
     }
   }
-
   if (!response.ok) {
-    const errorData = data as { msg?: string; message?: string; error_description?: string; error?: string } | null;
+    const errorData = data as {
+      msg?: string;
+      message?: string;
+      error_description?: string;
+      error?: string;
+      code?: string;
+      details?: string;
+      hint?: string;
+    } | null;
     const message = errorData?.msg ?? errorData?.message ?? errorData?.error_description ?? errorData?.error;
-    throw new SupabaseRequestError(message || `Supabase request failed (${response.status}).`, response.status);
+    throw new SupabaseRequestError(
+      message || `Supabase request failed (${response.status}).`,
+      response.status,
+      errorData?.code,
+      errorData?.details,
+      errorData?.hint,
+    );
   }
-
   return data as T;
 }
 
@@ -148,18 +199,13 @@ export async function refreshAuthSession(session: AuthSession) {
 
 export async function fetchAuthUser(accessToken: string) {
   requireConfig();
-  const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-    headers: authHeaders(accessToken),
-  });
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: authHeaders(accessToken) });
   return parseResponse<AuthUser>(response);
 }
 
 export async function signOutRemote(accessToken: string) {
   requireConfig();
-  const response = await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
-    method: "POST",
-    headers: authHeaders(accessToken),
-  });
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/logout`, { method: "POST", headers: authHeaders(accessToken) });
   if (!response.ok) await parseResponse<unknown>(response);
 }
 
@@ -190,4 +236,3 @@ export async function restPatch<T>(pathAndQuery: string, body: Record<string, un
   });
   return parseResponse<T>(response);
 }
-import { createClient } from "@supabase/supabase-js";

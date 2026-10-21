@@ -48,12 +48,21 @@ export function formatInviteCode(value: string) {
 }
 
 function errorCode(error: unknown) {
-  return error instanceof Error ? error.message : "";
+  if (typeof error === "string") return error;
+  if (!error || typeof error !== "object") return "";
+  const candidate = error as { message?: string; code?: string; details?: string; hint?: string };
+  return [candidate.message, candidate.code, candidate.details, candidate.hint].filter(Boolean).join(" — ");
 }
 
 export function pairingMessage(errorOrResult: unknown) {
   const code = typeof errorOrResult === "string" ? errorOrResult : errorCode(errorOrResult);
-  return INVITATION_MESSAGES[code] ?? "We couldn't complete that invitation. Please try again.";
+  const primaryCode = code.split(" — ")[0];
+  if (INVITATION_MESSAGES[primaryCode]) return INVITATION_MESSAGES[primaryCode];
+  if (primaryCode === "not_authenticated") return "Your sign-in has expired. Please sign in again.";
+  if (primaryCode === "Failed to fetch") return "We couldn't reach Twologue. Check your connection and try again.";
+  return primaryCode
+    ? `We couldn't complete that invitation: ${primaryCode}`
+    : "We couldn't complete that invitation. Please try again.";
 }
 
 function requireSession(session: AuthSession | null) {
@@ -92,9 +101,8 @@ export async function getMyCouple(session: AuthSession): Promise<CoupleData> {
 }
 
 export async function createInvite(session: AuthSession, targetEmail?: string) {
-  const { data, error } = await supabaseForSession(requireSession(session)).rpc("create_invite", {
-    p_target_email: targetEmail?.trim() || null,
-  });
+  const args = { p_target_email: targetEmail?.trim() || null };
+  const { data, error } = await supabaseForSession(requireSession(session)).rpc("create_invite", args);
   if (error) throw error;
   return String(data);
 }
