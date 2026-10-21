@@ -38,14 +38,14 @@ export function SharedFeatureSettings() {
     setError("");
     try {
       const couple = await getMyCouple(session);
-      if (!couple) {
+      if (!couple.couple) {
         setCoupleId(null);
         setSettings([]);
         return;
       }
-      setCoupleId(couple.id);
+      setCoupleId(couple.couple.id);
       const rows = await restGet<FeatureSetting[]>(
-        `couple_features?select=feature_key,enabled,settings,updated_at&couple_id=eq.${encodeURIComponent(couple.id)}&order=feature_key.asc`,
+        `couple_features?select=feature_key,enabled,settings,updated_at&couple_id=eq.${encodeURIComponent(couple.couple.id)}&order=feature_key.asc`,
         session,
       );
       setSettings(rows);

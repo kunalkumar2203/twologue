@@ -27,6 +27,14 @@ const SESSION_KEY = "twologue-auth-session";
 
 export const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+export function supabaseForSession(session: AuthSession) {
+  requireConfig();
+  return createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+    global: { headers: { Authorization: `Bearer ${session.access_token}` } },
+  });
+}
+
 export const supabaseSetupMessage =
   "Connect a Supabase project by setting VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.local. See SUPABASE_SETUP.md for the database setup steps.";
 
@@ -182,3 +190,4 @@ export async function restPatch<T>(pathAndQuery: string, body: Record<string, un
   });
   return parseResponse<T>(response);
 }
+import { createClient } from "@supabase/supabase-js";

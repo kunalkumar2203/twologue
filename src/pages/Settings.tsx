@@ -2,6 +2,7 @@ import tokens from "@/theme/tokens.json";
 import { useTheme } from "@/theme/ThemeProvider";
 import { THEMES } from "@/theme/themes";
 import { SharedFeatureSettings } from "@/features/couples/SharedFeatureSettings";
+import InvitePartnerCard from "@/features/couples/InvitePartnerCard";
 
 const MODES = ["light", "dark"] as const;
 
@@ -11,6 +12,7 @@ export default function Settings() {
   return (
     <section className="w-full max-w-3xl">
       <h1 className="text-3xl font-semibold">Settings</h1>
+      <div className="mt-8"><InvitePartnerCard /></div>
       <h2 className="mt-8 text-xl font-semibold">Appearance</h2>
 
       <div role="group" aria-label="Light or dark" className="mt-3 inline-flex rounded-full bg-surface p-1">
