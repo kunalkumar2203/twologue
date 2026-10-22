@@ -8,7 +8,10 @@ import {
   setMyMood,
   clearMyMood,
   type MoodEntry,
+  REMOTE_EXTENSIONS_ENABLED,
 } from "./api";
+import { getMyCouple } from "@/features/couples/api";
+import { supabaseForSession } from "@/lib/supabase";
 
 type MoodContextValue = {
   myMood: MoodEntry | null;
@@ -50,6 +53,41 @@ export function MoodProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     void refreshMoods();
   }, [session, refreshMoods]);
+
+  React.useEffect(() => {
+    if (!session || !REMOTE_EXTENSIONS_ENABLED) return;
+    const authSession = session;
+    let cancelled = false;
+    let channel: ReturnType<ReturnType<typeof supabaseForSession>["channel"]> | undefined;
+
+    async function subscribeToMoodChanges() {
+      try {
+        const coupleData = await getMyCouple(authSession);
+        if (cancelled || !coupleData.couple || !coupleData.partner) return;
+        const client = supabaseForSession(authSession);
+        channel = client
+          .channel(`mood-updates-${authSession.user.id}`)
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "daily_moods", filter: `couple_id=eq.${coupleData.couple.id}` },
+            () => void refreshMoods(),
+          )
+          .subscribe();
+      } catch {
+        // Polling below remains the fallback when Realtime is unavailable.
+      }
+    }
+
+    void subscribeToMoodChanges();
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") void refreshMoods();
+    }, 15_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      if (channel) void channel.unsubscribe();
+    };
+  }, [refreshMoods, session]);
 
   const saveMood = React.useCallback(async (icon: string, label: string, note: string) => {
     setSaving(true);
