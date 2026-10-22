@@ -1,5 +1,5 @@
 import { LogOut, UserRound } from "lucide-react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { BRAND } from "@/config/brand";
 import { useAuth } from "@/auth/AuthProvider";
 import { TABS } from "./tabs";
@@ -9,7 +9,9 @@ import { MoodBubble, useMood } from "@/features/today/MoodContext";
 export default function AppLayout() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { partnerMood, partnerName } = useMood();
+  const pairedWelcome = location.state?.pairedWelcome as { name: string; note: string } | undefined;
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col">
@@ -54,6 +56,11 @@ export default function AppLayout() {
       </header>
 
       <main className="mx-auto flex w-full min-w-0 max-w-4xl flex-1 px-4 py-4 sm:px-6 lg:px-8">
+        {pairedWelcome && (
+          <p role="status" aria-live="polite" className="mb-4 rounded-xl border border-accent/30 bg-accent/10 p-3 text-sm text-ink">
+            You’re connected with {pairedWelcome.name}. Welcome to your shared space. {pairedWelcome.note}
+          </p>
+        )}
         <Outlet />
       </main>
 

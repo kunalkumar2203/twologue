@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, useParams } from "react-router";
 import AppLayout from "./app/AppLayout";
 import { TABS } from "./app/tabs";
 import Placeholder from "./components/Placeholder";
@@ -12,13 +12,20 @@ import { USE_MOCK_API } from "./features/today/api";
 import { MoodProvider } from "./features/today/MoodContext";
 import LandingPage from "./pages/LandingPage";
 import InvitePartnerPage from "./features/couples/InvitePartnerPage";
+import JoinInvitePage from "./features/couples/JoinInvitePage";
 
 const SkipGate = ({ children }: { children: ReactNode }) => <>{children}</>;
 const Gate: ComponentType<{ children: ReactNode }> = USE_MOCK_API ? SkipGate : RequireAuth;
 
+function JoinRoute() {
+  const { code = "" } = useParams();
+  return <JoinInvitePage code={code} />;
+}
+
 export default createBrowserRouter([
   { path: "/", element: <LandingPage /> },
   { path: "/auth", element: <AuthPage /> },
+  { path: "/join/:code", element: <JoinRoute /> },
   {
     path: "/app",
     // MoodProvider wraps the whole app shell so AppLayout header can read mood state
