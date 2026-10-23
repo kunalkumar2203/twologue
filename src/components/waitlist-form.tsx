@@ -33,8 +33,8 @@ export function WaitlistForm() {
       (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)
     )?.trim();
     const configuredUrl = (import.meta.env.VITE_WAITLIST_URL as string | undefined)?.trim();
-    const usesRpc = !configuredUrl;
-    const endpoint = configuredUrl || (supabaseUrl ? `${supabaseUrl}/rest/v1/rpc/join_waitlist` : "");
+    const usesCustomEndpoint = Boolean(configuredUrl);
+    const endpoint = configuredUrl || (supabaseUrl ? `${supabaseUrl}/functions/v1/send-waitlist-email` : "");
 
     if (!endpoint || !publicKey) {
       setStatus("error");
@@ -53,7 +53,7 @@ export function WaitlistForm() {
           apikey: publicKey,
           Authorization: `Bearer ${publicKey}`,
         },
-        body: JSON.stringify(usesRpc ? { p_email: normalizedEmail } : { email: normalizedEmail, website }),
+        body: JSON.stringify({ email: normalizedEmail, ...(usesCustomEndpoint ? { website } : {}) }),
       });
 
       const payload = (await response.json().catch(() => ({}))) as WaitlistResponse;

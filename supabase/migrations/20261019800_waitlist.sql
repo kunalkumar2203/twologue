@@ -1,4 +1,4 @@
--- Migration 8: landing page waitlist
+-- Migration: landing page waitlist
 -- Kept separate from product accounts. The app can't read this table at all.
 -- The only way in is the join_waitlist function, which anyone (signed in or not) may call.
 
