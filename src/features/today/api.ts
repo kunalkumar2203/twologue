@@ -105,7 +105,7 @@ export async function getTodayScreen(session: AuthSession | null): Promise<Today
   if (!couple.couple) return { kind: "no-couple" };
 
   const flags = await restGet<{ enabled: boolean }[]>(
-    `shared_feature_settings?select=enabled&couple_id=eq.${encodeURIComponent(couple.couple.id)}&feature_key=eq.daily_question`,
+    `couple_features?select=enabled&couple_id=eq.${encodeURIComponent(couple.couple.id)}&feature_key=eq.daily_question`,
     auth,
   );
   if (flags[0]?.enabled === false) return { kind: "paused" };
@@ -140,7 +140,10 @@ export async function getMyMood(session: AuthSession | null): Promise<MoodEntry 
   if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetMyMood();
   try {
     const auth = requireSession(session);
-    const rows = await restGet<MoodEntry[]>(`daily_moods?select=*&order=created_at.desc&limit=1`, auth);
+    const rows = await restGet<MoodEntry[]>(
+      `daily_moods?select=*&user_id=eq.${encodeURIComponent(auth.user.id)}&order=updated_at.desc&limit=1`,
+      auth,
+    );
     return rows[0] ?? null;
   } catch {
     return (await import("./mock")).mockGetMyMood();

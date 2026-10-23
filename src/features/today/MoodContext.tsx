@@ -208,6 +208,7 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
       <button
         type="button"
         onClick={handleToggleOpen}
+        aria-expanded={open}
         title={
           mood
             ? `${isOwn ? "Your" : `${partnerName}'s`} emotional weather: ${mood.label}${mood.note ? ` — "${mood.note}"` : ""}`
@@ -223,7 +224,7 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
             : `${partnerName}'s status: ${mood ? mood.label : "not set"}`
         }
         className={[
-          "flex size-9 items-center justify-center rounded-full border text-lg transition-all select-none cursor-pointer",
+          "flex size-11 items-center justify-center rounded-full border text-lg transition-all select-none cursor-pointer sm:size-9",
           mood
             ? "border-accent/40 bg-accent/10 hover:border-accent hover:bg-accent/15"
             : isOwn
@@ -246,10 +247,12 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
       {/* Popover for own mood picker */}
       {isOwn && open && (
         <div
+          role="dialog"
+          aria-label="Set your emotional weather"
           className={[
-            "absolute z-50 mt-2 w-72 rounded-3xl border border-ink-soft/20 bg-page shadow-2xl p-4",
+            "absolute left-0 top-full z-50 mt-2 max-h-[calc(100dvh-6rem)] w-[min(18rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-3xl border border-ink-soft/20 bg-page p-3 shadow-2xl sm:p-4",
             "animate-in fade-in slide-in-from-top-2 duration-200",
-            side === "left" ? "left-0 top-full" : "right-0 top-full",
+            side === "left" ? "sm:left-0" : "sm:right-0 sm:left-auto",
           ].join(" ")}
         >
           <div className="flex items-center justify-between mb-3">
@@ -265,7 +268,7 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
           </div>
 
           {/* 4 Icon grid */}
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
             {MOOD_OPTIONS.map((m) => {
               const isSel = selected?.icon === m.icon;
               return (
@@ -276,7 +279,7 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
                   aria-pressed={isSel}
                   aria-label={m.label}
                   className={[
-                    "flex flex-col items-center gap-1 rounded-2xl border p-2.5 text-2xl transition-all cursor-pointer",
+                    "flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl border p-2 text-2xl transition-all cursor-pointer sm:p-2.5",
                     isSel
                       ? "border-accent bg-accent/15 ring-2 ring-accent ring-offset-2 ring-offset-page scale-105"
                       : "border-ink-soft/20 bg-surface hover:border-accent/40 hover:bg-surface/80",
@@ -305,13 +308,13 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
           )}
 
           {/* Actions */}
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => void handleConfirm()}
               disabled={!selected || saving}
               className={[
-                "flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all cursor-pointer",
+                "flex min-w-[9rem] flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-all cursor-pointer",
                 selected && !saving
                   ? "bg-accent text-on-accent hover:bg-accent/90"
                   : "bg-ink-soft/10 text-ink-soft cursor-not-allowed",
@@ -346,9 +349,11 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
       {/* Popover for partner's mood status card */}
       {!isOwn && open && mood && (
         <div
+          role="dialog"
+          aria-label={`${partnerName}'s emotional weather`}
           className={[
-            "absolute z-50 mt-2 w-64 rounded-3xl border border-ink-soft/20 bg-page shadow-2xl p-4",
-            "animate-in fade-in slide-in-from-top-2 duration-200 right-0 top-full",
+            "absolute right-0 top-full z-50 mt-2 max-h-[calc(100dvh-6rem)] w-[min(16rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-3xl border border-ink-soft/20 bg-page p-3 shadow-2xl sm:p-4",
+            "animate-in fade-in slide-in-from-top-2 duration-200",
           ].join(" ")}
         >
           <div className="flex items-center gap-3">
@@ -356,12 +361,12 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
               {mood.icon}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-ink-soft uppercase tracking-wide">{partnerName}'s weather</p>
+              <p className="truncate text-xs font-semibold uppercase tracking-wide text-ink-soft">{partnerName}'s weather</p>
               <p className="text-base font-semibold text-ink leading-tight">{mood.label}</p>
             </div>
           </div>
           {mood.note && (
-            <p className="mt-3 rounded-2xl bg-surface border border-ink-soft/15 p-3 text-xs leading-relaxed text-ink font-hand text-[15px]">
+            <p className="mt-3 break-words rounded-2xl border border-ink-soft/15 bg-surface p-3 text-xs leading-relaxed text-ink font-hand text-[15px]">
               "{mood.note}"
             </p>
           )}

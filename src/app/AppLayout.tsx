@@ -15,22 +15,22 @@ export default function AppLayout() {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col">
-      <header className="flex items-center justify-between px-4 pb-3 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 lg:px-8">
+      <header className="flex items-center justify-between gap-2 px-3 pb-3 pt-[max(1rem,env(safe-area-inset-top))] sm:gap-4 sm:px-6 lg:px-8">
         {/* Left: Brand + your mood bubble */}
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           {/* Mood bubble for the current user */}
           <MoodBubble side="left" />
 
           <div className="flex min-w-0 flex-col leading-none">
-            <span className="font-heading text-3xl font-semibold">{BRAND.name}</span>
-            <span className="mt-1 text-[15px] font-medium tracking-[0.18em] text-ink-soft">
+            <span className="truncate font-heading text-2xl font-semibold sm:text-3xl">{BRAND.name}</span>
+            <span className="mt-1 truncate text-[11px] font-medium tracking-[0.16em] text-ink-soft sm:text-[15px] sm:tracking-[0.18em]">
               Between Us
             </span>
           </div>
         </div>
 
         {/* Right: partner mood + profile + sign-out */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-2">
           {/* Partner mood bubble */}
           {partnerMood && <MoodBubble side="right" partnerName={partnerName} />}
 
@@ -47,10 +47,10 @@ export default function AppLayout() {
               await signOut();
               navigate("/auth", { replace: true });
             }}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-ink-soft hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="inline-flex items-center gap-1.5 rounded-full px-2 py-2 text-sm font-medium text-ink-soft hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:px-3"
           >
             <LogOut size={17} />
-            Sign out
+            <span className="hidden sm:inline">Sign out</span>
           </button>
         </div>
       </header>
