@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMood } from "./MoodContext";
 import InvitePartnerCard from "@/features/couples/InvitePartnerCard";
 import {
+  USE_MOCK_API,
   NOTE_TEMPLATES,
   getTodayScreen,
   requestDailyReveal,
@@ -37,6 +38,7 @@ import {
   getDailyChallenge,
   getChallengeStatus,
   completeChallenge,
+  skipChallenge,
   type TodayState,
   type TodayScreen,
   type AppreciationNote,
@@ -88,7 +90,7 @@ export default function TodayPage() {
 
   // Challenge state
   const [challenge, setChallenge] = React.useState<DailyChallenge | null>(null);
-  const [challengeStatus, setChallengeStatus] = React.useState<{ done: boolean; note: string }>({ done: false, note: "" });
+  const [challengeStatus, setChallengeStatus] = React.useState<{ done: boolean; skipped: boolean; note: string }>({ done: false, skipped: false, note: "" });
   const [showChallengeComplete, setShowChallengeComplete] = React.useState(false);
 
   const sessionRef = React.useRef(session);
@@ -209,11 +211,21 @@ export default function TodayPage() {
   async function doCompleteChallenge(note: string) {
     try {
       await completeChallenge(sessionRef.current, note);
-      setChallengeStatus({ done: true, note });
+      setChallengeStatus({ done: true, skipped: false, note });
       setShowChallengeComplete(false);
       setNotice("Challenge complete! 🎉");
     } catch {
       // silent
+    }
+  }
+
+  async function doSkipChallenge() {
+    try {
+      await skipChallenge(sessionRef.current);
+      setChallengeStatus({ done: false, skipped: true, note: "" });
+      setNotice("No problem. There is no penalty for skipping today.");
+    } catch {
+      setError("Couldn't skip today's challenge.");
     }
   }
 
@@ -407,6 +419,7 @@ export default function TodayPage() {
           onOpenComplete={() => setShowChallengeComplete(true)}
           onCloseComplete={() => setShowChallengeComplete(false)}
           onComplete={doCompleteChallenge}
+          onSkip={doSkipChallenge}
           busy={busy}
         />
       )}
@@ -750,15 +763,16 @@ function AnswerPanel({ name, answer, partner = false }: { name: string; answer: 
 
 type ChallengeCardProps = {
   challenge: DailyChallenge;
-  status: { done: boolean; note: string };
+  status: { done: boolean; skipped: boolean; note: string };
   showComplete: boolean;
   onOpenComplete: () => void;
   onCloseComplete: () => void;
   onComplete: (note: string) => void;
+  onSkip: () => void;
   busy: boolean;
 };
 
-function ChallengeCard({ challenge, status, showComplete, onOpenComplete, onCloseComplete, onComplete }: ChallengeCardProps) {
+function ChallengeCard({ challenge, status, showComplete, onOpenComplete, onCloseComplete, onComplete, onSkip }: ChallengeCardProps) {
   const [noteText, setNoteText] = React.useState("");
 
   const categoryColor: Record<string, string> = {
@@ -795,6 +809,11 @@ function ChallengeCard({ challenge, status, showComplete, onOpenComplete, onClos
             {status.note && <p className="mt-0.5 truncate text-xs text-ink-soft">{status.note}</p>}
           </div>
         </div>
+      ) : status.skipped ? (
+        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-ink-soft/20 bg-page px-4 py-3">
+          <span className="size-2 rounded-full bg-ink-soft/50" />
+          <p className="text-sm text-ink-soft">Skipped today. There is no penalty.</p>
+        </div>
       ) : showComplete ? (
         <div className="mt-4 space-y-3 animate-in fade-in duration-200">
           <Textarea
@@ -814,7 +833,7 @@ function ChallengeCard({ challenge, status, showComplete, onOpenComplete, onClos
               Mark done
             </Button>
             <Button variant="outline" onClick={onCloseComplete} className="rounded-full">
-              Not today
+              Keep for later
             </Button>
           </div>
         </div>
@@ -827,7 +846,7 @@ function ChallengeCard({ challenge, status, showComplete, onOpenComplete, onClos
             <Check className="size-4" />
             Done
           </Button>
-          <Button variant="outline" className="rounded-full text-ink-soft">
+          <Button variant="outline" onClick={onSkip} className="rounded-full text-ink-soft">
             Not today
           </Button>
         </div>

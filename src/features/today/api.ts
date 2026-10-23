@@ -8,6 +8,7 @@ export const USE_MOCK_API = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK
 // Extended features (mood, appreciation notes, daily challenges) use persistent local storage
 // unless VITE_USE_REMOTE_EXTENSIONS=true is set after applying database migrations.
 export const USE_REMOTE_EXTENSIONS = import.meta.env.VITE_USE_REMOTE_EXTENSIONS === "true";
+export const REMOTE_EXTENSIONS_ENABLED = USE_REMOTE_EXTENSIONS;
 
 export type DepthDial = "light" | "mixed" | "deep";
 
@@ -229,20 +230,16 @@ export async function markNoteRead(session: AuthSession | null, noteId: string) 
 export async function getDailyChallenge(session: AuthSession | null): Promise<DailyChallenge | null> {
   if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetChallenge();
   try {
-    const auth = requireSession(session);
-    const rows = await restGet<DailyChallenge[]>(`daily_challenge?select=*&limit=1`, auth);
-    return rows[0] ?? null;
+    return await restRpc<DailyChallenge | null>("get_daily_challenge", {}, requireSession(session));
   } catch {
     return (await import("./mock")).mockGetChallenge();
   }
 }
 
-export async function getChallengeStatus(session: AuthSession | null): Promise<{ done: boolean; note: string }> {
+export async function getChallengeStatus(session: AuthSession | null): Promise<{ done: boolean; skipped: boolean; note: string }> {
   if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetChallengeStatus();
   try {
-    const auth = requireSession(session);
-    const rows = await restGet<{ done: boolean; note: string }[]>(`daily_challenge_status?select=done,note&limit=1`, auth);
-    return rows[0] ?? { done: false, note: "" };
+    return await restRpc<{ done: boolean; skipped: boolean; note: string }>("get_challenge_status", {}, requireSession(session));
   } catch {
     return (await import("./mock")).mockGetChallengeStatus();
   }
@@ -254,5 +251,14 @@ export async function completeChallenge(session: AuthSession | null, note: strin
     await restRpc<null>("complete_daily_challenge", { p_note: note }, requireSession(session));
   } catch {
     return (await import("./mock")).mockCompleteChallenge(note);
+  }
+}
+
+export async function skipChallenge(session: AuthSession | null) {
+  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockSkipChallenge();
+  try {
+    await restRpc<null>("skip_daily_challenge", {}, requireSession(session));
+  } catch {
+    return (await import("./mock")).mockSkipChallenge();
   }
 }
