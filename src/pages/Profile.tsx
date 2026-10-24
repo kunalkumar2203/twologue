@@ -1,5 +1,5 @@
-import { Bell, ChevronRight, Mail, MapPin, Settings, ShieldCheck } from "lucide-react";
-import { Link } from "react-router";
+import { Bell, ChevronRight, LogOut, Mail, MapPin, Settings, ShieldCheck } from "lucide-react";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/auth/AuthProvider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -17,7 +17,8 @@ const profileItems = [
 ];
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const email = user?.email ?? "alex.morgan@example.com";
 
   return (
@@ -78,6 +79,26 @@ export default function Profile() {
           </span>
           <ChevronRight className="size-5 shrink-0 text-ink-soft" />
         </Link>
+      </div>
+
+      {/* Sign out */}
+      <div className="mt-4">
+        <button
+          type="button"
+          onClick={async () => {
+            await signOut();
+            navigate("/auth", { replace: true });
+          }}
+          className="flex w-full cursor-pointer items-center gap-3 rounded-3xl border border-red-500/20 bg-surface p-4 text-left hover:border-red-500/50 hover:bg-red-500/5 transition-colors"
+        >
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+            <LogOut className="size-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium text-red-600 dark:text-red-400">Sign out</span>
+            <span className="mt-0.5 block text-sm text-ink-soft">Sign out of your Twologue account</span>
+          </span>
+        </button>
       </div>
 
       <p className="mt-6 flex items-center gap-2 text-xs text-ink-soft">

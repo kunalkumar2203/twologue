@@ -24,7 +24,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMood } from "./MoodContext";
 import InvitePartnerCard from "@/features/couples/InvitePartnerCard";
 import {
-  USE_MOCK_API,
   NOTE_TEMPLATES,
   getTodayScreen,
   requestDailyReveal,
