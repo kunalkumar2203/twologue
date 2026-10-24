@@ -24,6 +24,28 @@ function readSecret(name: string): string {
   return value;
 }
 
+function parseSender(sender: string): { email: string; name: string } {
+  const trimmed = sender.trim();
+  const match = trimmed.match(/^(?:(?:"?([^"]*)"?\s)?<([^>]+)>|([^<]+))$/);
+  if (match) {
+    const name = (match[1] || "").trim();
+    const email = (match[2] || match[3] || "").trim();
+    return {
+      email,
+      name: name || "Twologue",
+    };
+  }
+  return { email: trimmed, name: "Twologue" };
+}
+
+function getMailerooApiKey(): string {
+  const key =
+    Deno.env.get("MAILEROO_API_KEY")?.trim() ||
+    Deno.env.get("MAILEROO_SENDING_KEY")?.trim();
+  if (!key) throw new Error("Missing required secret: MAILEROO_API_KEY (or MAILEROO_SENDING_KEY)");
+  return key;
+}
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
@@ -69,20 +91,24 @@ Deno.serve(async (request) => {
       return json({ error: "Your signup is being processed. Please try again shortly." }, 429);
     }
 
-    const resendApiKey = readSecret("RESEND_API_KEY");
-    const fromEmail = readSecret("WAITLIST_FROM_EMAIL");
+    const mailerooApiKey = getMailerooApiKey();
+    const fromRaw = readSecret("WAITLIST_FROM_EMAIL");
+    const sender = parseSender(fromRaw);
     const appUrl = Deno.env.get("APP_URL")?.trim() || "https://twologue.app";
-    const resendResponse = await fetch("https://api.resend.com/emails", {
+
+    const mailerooResponse = await fetch("https://smtp.maileroo.com/api/v2/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${resendApiKey}`,
+        "X-Api-Key": mailerooApiKey,
+        Authorization: `Bearer ${mailerooApiKey}`,
         "Content-Type": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify({
-        from: fromEmail,
-        to: [email],
+        from: sender,
+        to: [{ email }],
         subject: "You're on the Twologue waitlist",
-        text: [
+        plain: [
           "Thanks for joining the Twologue waitlist.",
           "",
           "We'll send you one note when Twologue is ready to try.",
@@ -93,8 +119,21 @@ Deno.serve(async (request) => {
       }),
     });
 
-    if (!resendResponse.ok) {
-      const detail = await resendResponse.text();
+    let mailerooData: Record<string, unknown> | null = null;
+    try {
+      mailerooData = (await mailerooResponse.json()) as Record<string, unknown>;
+    } catch {
+      // response is not JSON
+    }
+
+    if (!mailerooResponse.ok || (mailerooData && mailerooData.success === false)) {
+      const errObj = (mailerooData?.error as Record<string, unknown> | undefined) || {};
+      const detail =
+        (typeof errObj.message === "string" ? errObj.message : null) ||
+        (typeof mailerooData?.message === "string" ? mailerooData.message : null) ||
+        (typeof mailerooData?.error === "string" ? mailerooData.error : null) ||
+        (mailerooData ? JSON.stringify(mailerooData) : null) ||
+        `Status ${mailerooResponse.status}`;
       throw new Error(`Email provider rejected the message: ${detail.slice(0, 300)}`);
     }
 

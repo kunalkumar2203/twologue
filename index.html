@@ -1,25 +1,28 @@
 <!doctype html>
 <html lang="en" data-theme="%DEFAULT_THEME%" data-mode="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>%BRAND_NAME% | %BRAND_TAGLINE%</title>
-    <meta name="description" content="%BRAND_DESCRIPTION%" />
-    <script>
-      try {
-        var s = JSON.parse(localStorage.getItem("%THEME_STORAGE_KEY%"));
-        var root = document.documentElement;
-        if (s) {
-          root.dataset.theme = s.theme;
-          root.dataset.mode = s.mode;
-        } else if (matchMedia("(prefers-color-scheme: dark)").matches) {
-          root.dataset.mode = "dark";
-        }
-      } catch (e) {}
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>%BRAND_NAME% | %BRAND_TAGLINE%</title>
+  <meta name="description" content="%BRAND_DESCRIPTION%" />
+  <script>
+    try {
+      var s = JSON.parse(localStorage.getItem("%THEME_STORAGE_KEY%"));
+      var root = document.documentElement;
+      if (s) {
+        root.dataset.theme = s.theme;
+        root.dataset.mode = s.mode;
+      } else if (matchMedia("(prefers-color-scheme: dark)").matches) {
+        root.dataset.mode = "dark";
+      }
+    } catch (e) { }
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
