@@ -250,9 +250,8 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
           role="dialog"
           aria-label="Set your emotional weather"
           className={[
-            "absolute left-0 top-full z-50 mt-2 max-h-[calc(100dvh-6rem)] w-[min(18rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-3xl border border-ink-soft/20 bg-page p-3 shadow-2xl sm:p-4",
+            "absolute right-0 top-full z-50 mt-2 max-h-[calc(100dvh-6rem)] w-[min(18rem,calc(100vw-1.5rem))] overflow-y-auto overscroll-contain rounded-3xl border border-ink-soft/20 bg-page p-3 shadow-2xl sm:p-4",
             "animate-in fade-in slide-in-from-top-2 duration-200",
-            side === "left" ? "sm:left-0" : "sm:right-0 sm:left-auto",
           ].join(" ")}
         >
           <div className="flex items-center justify-between mb-3">

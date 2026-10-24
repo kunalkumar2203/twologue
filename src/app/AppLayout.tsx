@@ -1,14 +1,11 @@
-import { LogOut, UserRound } from "lucide-react";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
+import { UserRound } from "lucide-react";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { BRAND } from "@/config/brand";
-import { useAuth } from "@/auth/AuthProvider";
 import { TABS } from "./tabs";
 import { MoodBubble, useMood } from "@/features/today/MoodContext";
 
 // Frame around every screen: top bar, the screen itself, bottom tab bar
 export default function AppLayout() {
-  const { signOut } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const { partnerMood, partnerName } = useMood();
   const pairedWelcome = location.state?.pairedWelcome as { name: string; note: string } | undefined;
@@ -16,23 +13,36 @@ export default function AppLayout() {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col">
       <header className="flex items-center justify-between gap-2 px-3 pb-3 pt-[max(1rem,env(safe-area-inset-top))] sm:gap-4 sm:px-6 lg:px-8">
-        {/* Left: Brand + your mood bubble */}
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          {/* Mood bubble for the current user */}
-          <MoodBubble side="left" />
-
-          <div className="flex min-w-0 flex-col leading-none">
-            <span className="truncate font-heading text-2xl font-semibold sm:text-3xl">{BRAND.name}</span>
-            <span className="mt-1 truncate text-[11px] font-medium tracking-[0.16em] text-ink-soft sm:text-[15px] sm:tracking-[0.18em]">
-              Between Us
-            </span>
-          </div>
+        {/* Left: Brand name only */}
+        <div className="flex min-w-0 flex-col leading-none">
+          <span className="truncate font-heading text-2xl font-semibold sm:text-3xl">{BRAND.name}</span>
+          <span className="mt-1 truncate text-[11px] font-medium tracking-[0.16em] text-ink-soft sm:text-[15px] sm:tracking-[0.18em]">
+            Between Us
+          </span>
         </div>
 
-        {/* Right: partner mood + profile + sign-out */}
-        <div className="flex shrink-0 items-center gap-0.5 sm:gap-2">
-          {/* Partner mood bubble */}
-          {partnerMood && <MoodBubble side="right" partnerName={partnerName} />}
+        {/* Right: both mood bubbles side-by-side + profile */}
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          {/* Mood bubbles side by side with labels */}
+          <div className="flex items-end gap-1.5 sm:gap-2">
+            {/* Your mood bubble */}
+            <div className="flex flex-col items-center gap-0.5">
+              <MoodBubble side="left" />
+              <span className="text-[9px] font-medium text-ink-soft sm:text-[10px] leading-none">You</span>
+            </div>
+            {/* Partner mood bubble — only shown when partner exists */}
+            {partnerMood && (
+              <div className="flex flex-col items-center gap-0.5">
+                <MoodBubble side="right" partnerName={partnerName} />
+                <span
+                  className="max-w-[4rem] truncate text-[9px] font-medium text-ink-soft sm:text-[10px] leading-none text-center"
+                  title={partnerName}
+                >
+                  {partnerName}
+                </span>
+              </div>
+            )}
+          </div>
 
           <Link
             to="/app/profile"
@@ -41,17 +51,6 @@ export default function AppLayout() {
           >
             <UserRound size={22} />
           </Link>
-          <button
-            type="button"
-            onClick={async () => {
-              await signOut();
-              navigate("/auth", { replace: true });
-            }}
-            className="inline-flex items-center gap-1.5 rounded-full px-2 py-2 text-sm font-medium text-ink-soft hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:px-3"
-          >
-            <LogOut size={17} />
-            <span className="hidden sm:inline">Sign out</span>
-          </button>
         </div>
       </header>
 
