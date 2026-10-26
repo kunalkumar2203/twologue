@@ -27,9 +27,11 @@ export type TodayState = {
   partner_answered: boolean;
   my_reveal_requested: boolean;
   partner_reveal_requested: boolean;
-  // Post-reveal reactions (each partner can react once after reveal)
+  // Post-reveal reactions (each partner can react with an emoji and an optional written reply)
   my_reaction: string | null;
   partner_reaction: string | null;
+  my_reply: string | null;
+  partner_reply: string | null;
   // Stats & settings
   days_answered_together: number;
   swap_used_today: boolean;
@@ -58,7 +60,78 @@ export type MoodEntry = {
   note: string;
   private: boolean;
   created_at: string;
+  updated_at?: string;
 };
+
+// Returns true if mood was set today in the user's timezone AND within the last 24 hours.
+// Automatically resets at 12:00 midnight based on local/anchor timezone or after 24 hours.
+export function isMoodFresh(
+  mood: { updated_at?: string; created_at?: string } | null | undefined,
+  timeZone?: string,
+): boolean {
+  if (!mood) return false;
+  const isoStr = mood.updated_at || mood.created_at;
+  if (!isoStr) return false;
+
+  const moodTime = new Date(isoStr).getTime();
+  if (isNaN(moodTime)) return false;
+
+  const now = Date.now();
+  // Cutoff 1: Never keep a mood older than 24 hours
+  if (now - moodTime >= 24 * 60 * 60 * 1000) {
+    return false;
+  }
+
+  // Cutoff 2: Reset at 12:00 midnight in user's local or couple timezone
+  try {
+    const tz = timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: tz,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const moodDay = formatter.format(new Date(moodTime));
+    const todayDay = formatter.format(new Date(now));
+    return moodDay === todayDay;
+  } catch {
+    return now - moodTime < 24 * 60 * 60 * 1000;
+  }
+}
+
+// Milliseconds until 12:00:01 AM midnight in user's or couple's timezone
+export function getMsUntilNextMidnight(timeZone?: string): number {
+  try {
+    const now = new Date();
+    const tz = timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      hour12: false,
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    });
+    const parts = formatter.formatToParts(now);
+    let hour = 0;
+    let minute = 0;
+    let second = 0;
+    for (const p of parts) {
+      if (p.type === "hour") hour = parseInt(p.value, 10);
+      if (p.type === "minute") minute = parseInt(p.value, 10);
+      if (p.type === "second") second = parseInt(p.value, 10);
+    }
+    if (hour === 24) hour = 0;
+    const elapsedSeconds = hour * 3600 + minute * 60 + second;
+    const secondsInDay = 86400;
+    const secondsRemaining = secondsInDay - elapsedSeconds;
+    return Math.max(1000, (secondsRemaining + 1.5) * 1000);
+  } catch {
+    const now = new Date();
+    const nextMidnight = new Date(now);
+    nextMidnight.setHours(24, 0, 1, 0);
+    return Math.max(1000, nextMidnight.getTime() - now.getTime());
+  }
+}
 
 // Appreciation notes
 export type AppreciationNote = {
@@ -88,6 +161,17 @@ export type DailyChallenge = {
   category: "affection" | "words" | "play" | "reflection" | "service";
   remote_variant: string;
   duration_label: string;
+};
+
+export type ChallengeHistoryItem = {
+  id: string;
+  shown_on: string;
+  action: "shown" | "saved" | "skipped";
+  body: string;
+  category: "affection" | "words" | "play" | "reflection" | "service";
+  duration_label: string;
+  note: string;
+  updated_at: string;
 };
 
 function requireSession(session: AuthSession | null) {
@@ -129,9 +213,18 @@ export async function swapDailyQuestion(session: AuthSession | null, sessionId: 
   await restRpc<null>("swap_daily_question", { p_session_id: sessionId }, requireSession(session));
 }
 
-export async function submitRevealReaction(session: AuthSession | null, sessionId: string, reaction: string) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockSubmitReaction(reaction);
-  await restRpc<null>("submit_reveal_reaction", { p_session_id: sessionId, p_reaction: reaction }, requireSession(session));
+export async function submitRevealReaction(
+  session: AuthSession | null,
+  sessionId: string,
+  reaction: string,
+  reply?: string,
+) {
+  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockSubmitReaction(reaction, reply);
+  await restRpc<null>(
+    "submit_reveal_reaction",
+    { p_session_id: sessionId, p_reaction: reaction, p_reply: reply || null },
+    requireSession(session),
+  );
 }
 
 // ─── Mood / Emotional Weather ────────────────────────────────────────────────
@@ -144,7 +237,8 @@ export async function getMyMood(session: AuthSession | null): Promise<MoodEntry 
       `daily_moods?select=*&user_id=eq.${encodeURIComponent(auth.user.id)}&order=updated_at.desc&limit=1`,
       auth,
     );
-    return rows[0] ?? null;
+    const entry = rows[0] ?? null;
+    return isMoodFresh(entry) ? entry : null;
   } catch {
     return (await import("./mock")).mockGetMyMood();
   }
@@ -155,7 +249,8 @@ export async function getPartnerMood(session: AuthSession | null): Promise<MoodE
   try {
     const auth = requireSession(session);
     const rows = await restGet<MoodEntry[]>(`partner_mood?select=*&limit=1`, auth);
-    return rows[0] ?? null;
+    const entry = rows[0] ?? null;
+    return isMoodFresh(entry) ? entry : null;
   } catch {
     return (await import("./mock")).mockGetPartnerMood();
   }
@@ -263,5 +358,22 @@ export async function skipChallenge(session: AuthSession | null) {
     await restRpc<null>("skip_daily_challenge", {}, requireSession(session));
   } catch {
     return (await import("./mock")).mockSkipChallenge();
+  }
+}
+
+export async function getChallengeHistory(
+  session: AuthSession | null,
+  limit = 20,
+  offset = 0,
+): Promise<ChallengeHistoryItem[]> {
+  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetChallengeHistory(limit, offset);
+  try {
+    return await restRpc<ChallengeHistoryItem[]>(
+      "get_challenge_history",
+      { p_limit: limit, p_offset: offset },
+      requireSession(session),
+    );
+  } catch {
+    return (await import("./mock")).mockGetChallengeHistory(limit, offset);
   }
 }

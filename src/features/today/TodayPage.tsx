@@ -8,6 +8,7 @@ import {
   Heart,
   LoaderCircle,
   LockKeyhole,
+  Pencil,
   RefreshCw,
   Send,
   Shuffle,
@@ -38,6 +39,7 @@ import {
   getChallengeStatus,
   completeChallenge,
   skipChallenge,
+  MOOD_OPTIONS,
   type TodayState,
   type TodayScreen,
   type AppreciationNote,
@@ -78,7 +80,7 @@ export default function TodayPage() {
   const [error, setError] = React.useState("");
   const [notice, setNotice] = React.useState("");
 
-  const { setPartnerName } = useMood();
+  const { myMood, saveMood, setPartnerName } = useMood();
 
   // Appreciation notes state
   const [receivedNotes, setReceivedNotes] = React.useState<AppreciationNote[]>([]);
@@ -187,11 +189,11 @@ export default function TodayPage() {
     }, "Couldn't swap the question.");
   }
 
-  function doReact(emoji: string) {
+  function doReact(emoji: string, reply?: string) {
     if (!state) return;
     void run(async () => {
-      await submitRevealReaction(sessionRef.current, state.session_id, emoji);
-      return "";
+      await submitRevealReaction(sessionRef.current, state.session_id, emoji, reply);
+      return reply ? "Reaction and reply saved ✨" : "Reaction saved ✨";
     }, "Couldn't save your reaction.");
   }
 
@@ -303,6 +305,37 @@ export default function TodayPage() {
         </p>
       )}
 
+      {/* Atmosphere / Mood check-in banner if not set yet today */}
+      {!myMood && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-3.5 sm:p-4 shadow-xs transition-all">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-accent/15 text-xl">
+              🌤️
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-accent">Today's Atmosphere</p>
+              <p className="text-sm font-semibold text-ink">How are you feeling today?</p>
+              <p className="text-xs text-ink-soft">Check in with {state.partner_name || "your partner"}. Resets daily at midnight.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 self-start sm:self-auto flex-wrap">
+            {MOOD_OPTIONS.map((m) => (
+              <button
+                key={m.icon}
+                type="button"
+                onClick={() => void saveMood(m.icon, m.label, "")}
+                className="flex items-center gap-1.5 rounded-xl border border-accent/25 bg-page px-3 py-1.5 text-sm font-medium text-ink hover:border-accent hover:bg-accent/10 hover:scale-105 transition-all cursor-pointer shadow-2xs"
+                title={`Set mood to ${m.label}`}
+                aria-label={`Set mood to ${m.label}`}
+              >
+                <span>{m.icon}</span>
+                <span className="text-xs">{m.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions (Appreciation) */}
       <div className="flex flex-wrap gap-2">
         <button
@@ -377,7 +410,9 @@ export default function TodayPage() {
             {/* Post-reveal reactions */}
             <ReactionRow
               myReaction={state.my_reaction}
+              myReply={state.my_reply ?? null}
               partnerReaction={state.partner_reaction}
+              partnerReply={state.partner_reply ?? null}
               partnerName={state.partner_name}
               onReact={doReact}
               busy={busy}
@@ -682,43 +717,169 @@ function RevealPanel({ state, busy, onReveal }: { state: TodayState; busy: boole
 }
 
 function ReactionRow({
-  myReaction, partnerReaction, partnerName, onReact, busy,
+  myReaction,
+  myReply,
+  partnerReaction,
+  partnerReply,
+  partnerName,
+  onReact,
+  busy,
 }: {
   myReaction: string | null;
+  myReply: string | null;
   partnerReaction: string | null;
+  partnerReply: string | null;
   partnerName: string;
-  onReact: (emoji: string) => void;
+  onReact: (emoji: string, reply?: string) => void;
   busy: boolean;
 }) {
+  const [selectedEmoji, setSelectedEmoji] = React.useState<string>(myReaction || REACTIONS[0]);
+  const [replyText, setReplyText] = React.useState<string>(myReply || "");
+  const [isEditing, setIsEditing] = React.useState<boolean>(!myReaction);
+
+  React.useEffect(() => {
+    if (myReaction) {
+      setSelectedEmoji(myReaction);
+      setReplyText(myReply || "");
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
+  }, [myReaction, myReply]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEmoji) return;
+    onReact(selectedEmoji, replyText.trim() || undefined);
+    setIsEditing(false);
+  };
+
   return (
-    <div className="mt-5 rounded-2xl border border-ink-soft/20 bg-page p-4">
-      <p className="text-xs font-semibold text-ink-soft">React to their answer</p>
-      {myReaction ? (
-        <div className="mt-2 flex items-center gap-3">
-          <span className="text-2xl">{myReaction}</span>
-          <span className="text-sm text-ink-soft">You reacted</span>
-        </div>
-      ) : (
-        <div className="mt-2 flex gap-2">
-          {REACTIONS.map((emoji) => (
+    <div className="mt-6 rounded-3xl border border-ink-soft/20 bg-page p-5 sm:p-6 space-y-4">
+      {/* My Reaction Section */}
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-soft">
+            Your reaction to {partnerName}'s answer
+          </p>
+          {myReaction && !isEditing && (
             <button
-              key={emoji}
               type="button"
-              disabled={busy}
-              onClick={() => onReact(emoji)}
-              className="rounded-full border border-ink-soft/20 p-2 text-xl hover:border-accent/50 hover:bg-accent/5 transition-colors disabled:opacity-50"
+              onClick={() => setIsEditing(true)}
+              className="flex items-center gap-1 text-xs font-medium text-accent hover:underline"
             >
-              {emoji}
+              <Pencil className="size-3" />
+              Edit
             </button>
-          ))}
+          )}
         </div>
-      )}
-      {partnerReaction && (
-        <p className="mt-2 flex items-center gap-1.5 text-sm text-ink-soft">
-          <span className="text-lg">{partnerReaction}</span>
-          {partnerName} reacted
+
+        {myReaction && !isEditing ? (
+          <div className="mt-3 rounded-2xl border border-ink-soft/15 bg-surface p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-3xl shrink-0 animate-in zoom-in-50 duration-200">{myReaction}</span>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-ink-soft">You reacted</p>
+                {myReply ? (
+                  <p className="mt-1 font-hand text-base leading-relaxed text-ink">
+                    “{myReply}”
+                  </p>
+                ) : (
+                  <p className="mt-0.5 text-xs italic text-ink-soft/70">No written reply added</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-3 space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {REACTIONS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setSelectedEmoji(emoji)}
+                  className={`rounded-2xl border p-2.5 text-2xl transition-all duration-150 ${
+                    selectedEmoji === emoji
+                      ? "border-accent bg-accent/15 scale-105 shadow-sm"
+                      : "border-ink-soft/20 bg-surface hover:border-accent/40 hover:bg-accent/5 opacity-75 hover:opacity-100"
+                  }`}
+                  aria-label={`React with ${emoji}`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+
+            <div className="relative">
+              <input
+                type="text"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                maxLength={200}
+                placeholder={`Leave a gentle reply to ${partnerName}… (optional)`}
+                disabled={busy}
+                className="w-full rounded-2xl border border-ink-soft/20 bg-surface px-4 py-2.5 text-sm placeholder:text-ink-soft/60 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              />
+              <span className="absolute right-3 top-3 text-[10px] text-ink-soft">
+                {replyText.length}/200
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="submit"
+                disabled={busy || !selectedEmoji}
+                size="sm"
+                className="rounded-full bg-accent text-on-accent hover:bg-accent/90"
+              >
+                {busy ? <LoaderCircle className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                {myReaction ? "Update reaction" : "Send reaction"}
+              </Button>
+              {myReaction && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditing(false)}
+                  className="rounded-full text-xs text-ink-soft"
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </form>
+        )}
+      </div>
+
+      {/* Partner's Reaction Section */}
+      <div className="pt-2 border-t border-ink-soft/10">
+        <p className="text-xs font-semibold uppercase tracking-wider text-ink-soft">
+          {partnerName}'s reaction
         </p>
-      )}
+
+        {partnerReaction ? (
+          <div className="mt-2.5 rounded-2xl border border-accent/20 bg-accent/5 p-4 animate-in fade-in duration-300">
+            <div className="flex items-start gap-3">
+              <span className="text-3xl shrink-0">{partnerReaction}</span>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-ink-soft">
+                  {partnerName} reacted to your answer
+                </p>
+                {partnerReply ? (
+                  <p className="mt-1 font-hand text-base leading-relaxed text-ink">
+                    “{partnerReply}”
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-2 text-xs italic text-ink-soft">
+            Waiting for {partnerName}'s reaction…
+          </p>
+        )}
+      </div>
     </div>
   );
 }
