@@ -270,14 +270,6 @@ export default function TodayPage() {
         </div>
         <button
           type="button"
-          onClick={() => void load({ quiet: true })}
-          className="rounded-full p-2 text-ink-soft hover:bg-surface hover:text-ink"
-          aria-label="Refresh today's question"
-        >
-          <RefreshCw className="size-4" />
-        </button>
-        <button
-          type="button"
           onClick={() => setShowAppreciationJar(true)}
           className="flex items-center gap-2 rounded-full border border-ink-soft/20 bg-surface px-4 py-2 text-sm font-medium text-ink hover:border-accent/50 hover:bg-accent/5 transition-colors"
         >
@@ -340,18 +332,26 @@ export default function TodayPage() {
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => setShowNoteCompose(true)}
-          className="flex items-center gap-2 rounded-full border border-ink-soft/20 bg-surface px-4 py-2 text-sm font-medium text-ink hover:border-accent/50 hover:bg-accent/5 transition-colors"
+          onClick={() => setShowNoteCompose((prev) => !prev)}
+          className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+            showNoteCompose
+              ? "border-accent/60 bg-accent/10 text-accent"
+              : "border-ink-soft/20 bg-surface text-ink hover:border-accent/50 hover:bg-accent/5"
+          }`}
         >
           <Heart className="size-4 text-accent" />
           Appreciate {state.partner_name}
         </button>
         <button
           type="button"
-          onClick={() => { setShowNoteInbox(true); }}
-          className="relative flex items-center gap-2 rounded-full border border-ink-soft/20 bg-surface px-4 py-2 text-sm font-medium text-ink hover:border-accent/50 hover:bg-accent/5 transition-colors"
+          onClick={() => setShowNoteInbox((prev) => !prev)}
+          className={`relative flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+            showNoteInbox
+              ? "border-accent/60 bg-accent/10 text-accent"
+              : "border-ink-soft/20 bg-surface text-ink hover:border-accent/50 hover:bg-accent/5"
+          }`}
         >
-          <Gift className="size-4 text-ink-soft" />
+          <Gift className={`size-4 ${showNoteInbox ? "text-accent" : "text-ink-soft"}`} />
           Notes for you
           {unreadCount > 0 && (
             <span className="flex size-5 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-on-accent">
@@ -361,25 +361,41 @@ export default function TodayPage() {
         </button>
       </div>
 
-      {/* Appreciate Compose Sheet */}
-      {showNoteCompose && (
-        <AppreciateCompose
-          partnerName={state.partner_name}
-          onSend={doSendNote}
-          onClose={() => setShowNoteCompose(false)}
-        />
-      )}
-
-      {/* Note Inbox */}
-      {showNoteInbox && (
-        <NoteInbox
-          notes={receivedNotes}
-          onMarkRead={async (id) => {
-            await markNoteRead(sessionRef.current, id);
-            setReceivedNotes((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+      {/* Side-by-side panels — each takes 50% when both open, 100% when solo */}
+      {(showNoteCompose || showNoteInbox) && (
+        <div
+          className="grid gap-3 transition-all duration-300"
+          style={{
+            gridTemplateColumns:
+              showNoteCompose && showNoteInbox
+                ? "1fr 1fr"
+                : showNoteCompose
+                ? "1fr"
+                : "1fr",
           }}
-          onClose={() => setShowNoteInbox(false)}
-        />
+        >
+          {showNoteCompose && (
+            <div className="min-w-0 transition-all duration-300">
+              <AppreciateCompose
+                partnerName={state.partner_name}
+                onSend={doSendNote}
+                onClose={() => setShowNoteCompose(false)}
+              />
+            </div>
+          )}
+          {showNoteInbox && (
+            <div className="min-w-0 transition-all duration-300">
+              <NoteInbox
+                notes={receivedNotes}
+                onMarkRead={async (id) => {
+                  await markNoteRead(sessionRef.current, id);
+                  setReceivedNotes((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+                }}
+                onClose={() => setShowNoteInbox(false)}
+              />
+            </div>
+          )}
+        </div>
       )}
 
       {/* Daily Question Hero */}
@@ -562,7 +578,7 @@ function NoteInbox({
         </button>
       </div>
       {notes.length === 0 ? (
-        <p className="mt-4 text-sm text-ink-soft">No notes yet — they'll appear here when your partner sends one.</p>
+        <p className="mt-4 text-sm text-ink-soft">No notes yet, they'll appear here when your partner sends one.</p>
       ) : (
         <ul className="mt-3 space-y-3">
           {notes.map((note) => (

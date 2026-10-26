@@ -7,7 +7,7 @@ import { MoodBubble, useMood } from "@/features/today/MoodContext";
 // Frame around every screen: top bar, the screen itself, bottom tab bar
 export default function AppLayout() {
   const location = useLocation();
-  const { partnerMood, partnerName } = useMood();
+  const { hasPartner, partnerMood, partnerName } = useMood();
   const pairedWelcome = location.state?.pairedWelcome as { name: string; note: string } | undefined;
 
   return (
@@ -30,8 +30,8 @@ export default function AppLayout() {
               <MoodBubble side="left" />
               <span className="text-[9px] font-medium text-ink-soft sm:text-[10px] leading-none">You</span>
             </div>
-            {/* Partner mood bubble — only shown when partner exists */}
-            {partnerMood && (
+            {/* Partner mood bubble, shown when partner exists */}
+            {(hasPartner || partnerMood) && (
               <div className="flex flex-col items-center gap-0.5">
                 <MoodBubble side="right" partnerName={partnerName} />
                 <span
