@@ -11,7 +11,7 @@ import TodayPage from "./features/today/TodayPage";
 import { USE_MOCK_API } from "./features/today/api";
 import { MoodProvider } from "./features/today/MoodContext";
 import LandingPage from "./pages/LandingPage";
-import InvitePartnerPage from "./features/couples/InvitePartnerPage";
+import UsPage from "./features/couples/UsPage";
 import JoinInvitePage from "./features/couples/JoinInvitePage";
 
 const SkipGate = ({ children }: { children: ReactNode }) => <>{children}</>;
@@ -40,7 +40,7 @@ export default createBrowserRouter([
       { index: true, element: <TodayPage /> },
       ...TABS.slice(1).map((tab) => ({
         path: tab.path.replace(/^\//, ""),
-        element: tab.path === "us" ? <InvitePartnerPage /> : <Placeholder title={tab.label} blurb={tab.blurb} />,
+        element: tab.path === "us" ? <UsPage /> : <Placeholder title={tab.label} blurb={tab.blurb} />,
       })),
       { path: "settings", element: <Settings /> },
       { path: "profile", element: <Profile /> },
