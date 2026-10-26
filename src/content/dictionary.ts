@@ -114,6 +114,31 @@ export const DAILY_QUESTIONS: Question[] = [
   { id: "dq-073", depth: "deep", tags: ["years-together"], text: "What do you hope we never stop doing?" },
   { id: "dq-074", depth: "deep", tags: ["values"], text: "How could I show my love in a way that feels clearer to you?" },
   { id: "dq-075", depth: "deep", tags: ["long-distance"], text: "What would make the distance feel smaller for you this month?" },
+  { id: "dq-076", depth: "light", tags: ["everyday"], text: "What is something small that made you feel peaceful today?" },
+  { id: "dq-077", depth: "light", tags: ["playful"], text: "If you could pick our soundtrack for this evening, what would be the first track?" },
+  { id: "dq-078", depth: "light", tags: ["memories", "playful"], text: "What is the funniest outfit or fashion choice you've ever committed to?" },
+  { id: "dq-079", depth: "light", tags: ["everyday", "gratitude"], text: "What is your favorite corner or spot in our living space, and why?" },
+  { id: "dq-080", depth: "light", tags: ["long-distance", "playful"], text: "If we were sitting at a cafe right now, what pastry would you order for us to share?" },
+  { id: "dq-081", depth: "light", tags: ["new-couple", "everyday"], text: "What is an unusual snack combination that you secretly love?" },
+  { id: "dq-082", depth: "light", tags: ["years-together", "playful"], text: "What is an inside joke between us that never fails to make you smile?" },
+  { id: "dq-083", depth: "light", tags: ["everyday"], text: "What is the best recommendation (book, podcast, movie, or tip) you got recently?" },
+  { id: "dq-084", depth: "medium", tags: ["gratitude"], text: "What is one quiet habit of yours that helps you unwind, that I can help protect?" },
+  { id: "dq-085", depth: "medium", tags: ["memories"], text: "What is a trip or weekend away that you'd love to take with me when the time is right?" },
+  { id: "dq-086", depth: "medium", tags: ["values", "everyday"], text: "What boundary are you practicing holding for yourself these days?" },
+  { id: "dq-087", depth: "medium", tags: ["future"], text: "What is one project or hobby you'd love to tackle together sometime this year?" },
+  { id: "dq-088", depth: "medium", tags: ["new-couple", "values"], text: "What does taking care of each other during a busy season look like to you?" },
+  { id: "dq-089", depth: "medium", tags: ["long-distance", "memories"], text: "Which photo of us on your phone do you find yourself looking back at most often?" },
+  { id: "dq-090", depth: "medium", tags: ["gratitude", "years-together"], text: "What is something you appreciate about how we communicate through differences?" },
+  { id: "dq-091", depth: "medium", tags: ["everyday"], text: "What is one thing that drained your energy this week, and what gave you energy back?" },
+  { id: "dq-092", depth: "deep", tags: ["values"], text: "What is a fear you hold about being truly vulnerable, and how can I meet you there gently?" },
+  { id: "dq-093", depth: "deep", tags: ["gratitude", "values"], text: "In what ways do you feel we bring out the best in one another?" },
+  { id: "dq-094", depth: "deep", tags: ["future"], text: "When you picture our life ten years from now, what feeling do you most want at the center?" },
+  { id: "dq-095", depth: "deep", tags: ["memories", "values"], text: "What is a lesson from your past relationships or upbringing that you are intentionally rewriting with me?" },
+  { id: "dq-096", depth: "deep", tags: ["values"], text: "What does forgiveness feel like for you, and how do you like to repair after tension?" },
+  { id: "dq-097", depth: "deep", tags: ["years-together", "future"], text: "What part of our connection would you like us to nurture more deliberately in this season?" },
+  { id: "dq-098", depth: "deep", tags: ["long-distance", "values"], text: "When distance or circumstance makes things tough, what brings you back to center?" },
+  { id: "dq-099", depth: "deep", tags: ["gratitude"], text: "What is one thing about who you are that you feel completely accepted for when you're with me?" },
+  { id: "dq-100", depth: "deep", tags: ["future", "values"], text: "What promise to ourselves and to each other do you want us to hold dear as we grow together?" },
 ];
 
 /* ---------- Appreciation notes ---------- */
@@ -195,6 +220,36 @@ export const CHALLENGES: Challenge[] = [
   { id: "mc-028", category: "service", text: "Play their favourite song softly while they're busy.", remoteText: "Send their favourite song with a note: \"for the long day.\"" },
   { id: "mc-029", category: "service", text: "Ask, \"How can I make today a little easier?\" and do one thing they say." },
   { id: "mc-030", category: "service", text: "Plan a small treat for the weekend, and keep it a surprise." },
+
+  // Affection (Expanded)
+  { id: "mc-031", category: "affection", text: "Rest your forehead against theirs for three quiet breaths.", remoteText: "Send a photo or short video of you making a gentle resting pause, wishing them peace." },
+  { id: "mc-032", category: "affection", text: "Give an unexpected hug from behind or a gentle squeeze on the arm as you pass each other.", remoteText: "Send a spontaneous 'thinking of you right now' text with no expectation of an immediate reply." },
+  { id: "mc-033", category: "affection", text: "Gently brush or play with each other's hair while sitting together.", remoteText: "Send a soothing voice note with sounds of your environment or a calm message before bed." },
+  { id: "mc-034", category: "affection", text: "Spend two minutes looking into each other's eyes without speaking, letting whatever smile comes happen.", remoteText: "Start a 2-minute video call where you simply look at each other and smile, no words needed." },
+
+  // Words (Expanded)
+  { id: "mc-035", category: "words", text: "Write down three things you cherish about them on a slip of paper and tuck it into their pocket or bag.", remoteText: "Send a 3-bullet-point note titled 'Three things I cherish about you today'." },
+  { id: "mc-036", category: "words", text: "Ask them: 'What was the highlight of your day, however tiny?' and simply listen without interrupting.", remoteText: "Send: 'Tell me about one good moment today — I want to hear all about it.'" },
+  { id: "mc-037", category: "words", text: "Say out loud one quality in them that inspires you to be a kinder person.", remoteText: "Record a 30-second audio clip telling them one specific way they inspire you." },
+  { id: "mc-038", category: "words", text: "Send them an appreciative text about something specific they did earlier this week.", remoteText: "Send an unexpected appreciation message about something from earlier this week." },
+
+  // Play (Expanded)
+  { id: "mc-039", category: "play", text: "Play a quick 5-round rock-paper-scissors tournament; loser plans a tiny 5-minute treat.", remoteText: "Play rock-paper-scissors over text using emojis 🪨📄✂️ in a 3-round sprint." },
+  { id: "mc-040", category: "play", text: "Put on two opposite music tracks back-to-back and see who can make the other laugh with a dramatic lip sync.", remoteText: "Send a 10-second lip sync video to a dramatic song of your choice." },
+  { id: "mc-041", category: "play", text: "Each share the most embarrassing song in your guilty-pleasure playlist and play 30 seconds of it.", remoteText: "Send a link to your ultimate guilty pleasure song with zero context." },
+  { id: "mc-042", category: "play", text: "Guess three trivial things about each other's day (what they drank first, what color shirt a coworker wore, etc.).", remoteText: "Send three trivia questions guessing what the other person did during lunch today." },
+
+  // Reflection (Expanded)
+  { id: "mc-043", category: "reflection", text: "Step outside together for three minutes, look at the sky, and share one breath of fresh air.", remoteText: "Step outside at the same time, take a photo of the sky above you, and send it over." },
+  { id: "mc-044", category: "reflection", text: "Ask each other: 'What is something that felt a little heavy this week that you're ready to put down?'", remoteText: "Voice note each other: 'What is one thing from this week you're ready to leave behind?'" },
+  { id: "mc-045", category: "reflection", text: "Name one ritual we share that makes you feel anchored in this relationship.", remoteText: "Send a note naming one shared habit or check-in that keeps you feeling anchored." },
+  { id: "mc-046", category: "reflection", text: "Pick one word that you hope describes the coming weekend for both of us.", remoteText: "Send your one-word intention for the coming weekend and compare." },
+
+  // Service (Expanded)
+  { id: "mc-047", category: "service", text: "Refill their water bottle or bring them a fresh glass of water without them asking.", remoteText: "Send a gentle hydration reminder or order their favorite comfort snack to their doorstep." },
+  { id: "mc-048", category: "service", text: "Plug in their device or tidy up their immediate desk / nightstand area.", remoteText: "Send a curated link, playlist, or reading you know will save them time or make their task easier." },
+  { id: "mc-049", category: "service", text: "Take over making the bed or fluffing the pillows tonight so it feels like a welcoming retreat.", remoteText: "Draft a shared calendar invite or itinerary for your next meetup so they don't have to plan." },
+  { id: "mc-050", category: "service", text: "Ask: 'What is one small decision you're tired of making today? Let me make it for you.'", remoteText: "Ask: 'What is one minor choice you don't feel like making today? Let me decide for you.'" },
 ];
 
 /* =====================================================================
