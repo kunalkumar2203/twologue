@@ -13,6 +13,10 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = React.useState<"signin" | "signup">("signup");
   const [displayName, setDisplayName] = React.useState("");
+  const [gender, setGender] = React.useState("");
+  const [age, setAge] = React.useState("");
+  const [timeZone, setTimeZone] = React.useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
+  const [signupStep, setSignupStep] = React.useState<1 | 2>(1);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -33,6 +37,19 @@ export default function AuthPage() {
       setError("Add a name with at least 2 characters.");
       return;
     }
+    if (mode === "signup" && signupStep === 1) {
+      setSignupStep(2);
+      return;
+    }
+    if (mode === "signup" && !gender) {
+      setError("Choose the option that feels right for you.");
+      return;
+    }
+    const numericAge = Number(age);
+    if (mode === "signup" && (!Number.isInteger(numericAge) || numericAge < 16 || numericAge > 120)) {
+      setError("Enter an age between 16 and 120.");
+      return;
+    }
     if (password.length < 8) {
       setError("Use a password with at least 8 characters.");
       return;
@@ -41,7 +58,7 @@ export default function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const signedIn = await signUp(email, password, displayName, next);
+        const signedIn = await signUp(email, password, { displayName, gender, age: numericAge, timeZone }, next);
         if (signedIn) navigate(next, { replace: true });
         else setNotice("Check your inbox to confirm your email, then come back to sign in.");
       } else {
@@ -79,33 +96,68 @@ export default function AuthPage() {
             </div>
           ) : (
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
-              {mode === "signup" && (
+              {mode === "signup" && signupStep === 1 && (
                 <label className="block space-y-1.5 text-sm font-medium">
                   Your name
                   <Input autoComplete="name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} maxLength={60} placeholder="What should your partner call you?" required />
                 </label>
               )}
-              <label className="block space-y-1.5 text-sm font-medium">
-                Email
-                <Input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required />
-              </label>
-              <label className="block space-y-1.5 text-sm font-medium">
-                Password
-                <Input type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} placeholder="At least 8 characters" required />
-              </label>
+              {(mode === "signin" || signupStep === 1) && (
+                <>
+                  <label className="block space-y-1.5 text-sm font-medium">
+                    Email
+                    <Input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required />
+                  </label>
+                  <label className="block space-y-1.5 text-sm font-medium">
+                    Password
+                    <Input type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} placeholder="At least 8 characters" required />
+                  </label>
+                </>
+              )}
+              {mode === "signup" && signupStep === 2 && (
+                <>
+                  <div className="rounded-2xl bg-page p-4 text-sm text-ink-soft">
+                    A little more about you helps personalize your shared space.
+                  </div>
+                  <label className="block space-y-1.5 text-sm font-medium">
+                    Gender
+                    <select className="flex h-10 w-full rounded-md border border-ink-soft/20 bg-surface px-3 text-sm" value={gender} onChange={(event) => setGender(event.target.value)} required>
+                      <option value="">Select an option</option>
+                      <option value="woman">Woman</option>
+                      <option value="man">Man</option>
+                      <option value="non_binary">Non-binary</option>
+                      <option value="self_described">Prefer to self-describe</option>
+                      <option value="prefer_not_to_say">Prefer not to say</option>
+                    </select>
+                  </label>
+                  <label className="block space-y-1.5 text-sm font-medium">
+                    Age
+                    <Input type="number" min={16} max={120} value={age} onChange={(event) => setAge(event.target.value)} placeholder="16 or older" required />
+                  </label>
+                  <label className="block space-y-1.5 text-sm font-medium">
+                    Time zone
+                    <Input value={timeZone} onChange={(event) => setTimeZone(event.target.value)} placeholder="e.g. Asia/Kolkata" required />
+                  </label>
+                </>
+              )}
               {error && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
               {notice && <p role="status" className="rounded-xl border border-ink-soft/20 bg-page p-3 text-sm text-ink-soft">{notice}</p>}
               <Button type="submit" disabled={busy} className="h-11 w-full rounded-full bg-accent text-on-accent hover:bg-accent/90">
                 {busy && <LoaderCircle className="size-4 animate-spin" />}
-                {busy ? "One moment…" : mode === "signup" ? "Create account" : "Sign in"}
+                {busy ? "One moment…" : mode === "signup" && signupStep === 1 ? "Continue" : mode === "signup" ? "Create account" : "Sign in"}
               </Button>
+              {mode === "signup" && signupStep === 2 && (
+                <button type="button" className="w-full text-sm font-medium text-ink-soft underline underline-offset-4" onClick={() => { setSignupStep(1); setError(""); }}>
+                  Back
+                </button>
+              )}
             </form>
           )}
 
           {supabaseConfigured && (
             <p className="mt-5 text-center text-sm text-ink-soft">
               {mode === "signup" ? "Already have an account?" : "New to Twologue?"}{" "}
-              <button type="button" className="font-semibold text-ink underline underline-offset-4" onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(""); setNotice(""); }}>
+              <button type="button" className="font-semibold text-ink underline underline-offset-4" onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setSignupStep(1); setError(""); setNotice(""); }}>
                 {mode === "signup" ? "Sign in" : "Create account"}
               </button>
             </p>
