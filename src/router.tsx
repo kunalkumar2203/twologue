@@ -40,7 +40,7 @@ export default createBrowserRouter([
       { index: true, element: <TodayPage /> },
       ...TABS.slice(1).map((tab) => ({
         path: tab.path.replace(/^\//, ""),
-        element: tab.path === "us" ? <UsPage /> : <Placeholder title={tab.label} blurb={tab.blurb} />,
+        element: tab.path === "us" ? <UsPage /> : <Placeholder section={tab.path} title={tab.label} blurb={tab.blurb} />,
       })),
       { path: "settings", element: <Settings /> },
       { path: "profile", element: <Profile /> },
