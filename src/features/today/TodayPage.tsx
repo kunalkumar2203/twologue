@@ -2,18 +2,22 @@ import * as React from "react";
 import {
   ArrowRight,
   Check,
-
+  ChevronDown,
+  Clock,
+  Compass,
   Eye,
   Gift,
   Heart,
   LoaderCircle,
   LockKeyhole,
+  MessageSquare,
+  PauseCircle,
   Pencil,
   RefreshCw,
   Send,
   Shuffle,
   Sparkles,
-  Star,
+  Timer,
   X,
   Zap,
 } from "lucide-react";
@@ -24,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useMood } from "./MoodContext";
 import InvitePartnerCard from "@/features/couples/InvitePartnerCard";
+import { useSharedFeatures } from "@/features/couples/useSharedFeatures";
 import {
   NOTE_TEMPLATES,
   getTodayScreen,
@@ -72,6 +77,7 @@ function timeAgo(iso: string) {
 
 export default function TodayPage() {
   const { session } = useAuth();
+  const { isEnabled } = useSharedFeatures();
   const [screen, setScreen] = React.useState<TodayScreen | null>(null);
   const [answer, setAnswer] = React.useState("");
   const [loading, setLoading] = React.useState(true);
@@ -86,7 +92,6 @@ export default function TodayPage() {
   const [sentNotes, setSentNotes] = React.useState<AppreciationNote[]>([]);
   const [showNoteCompose, setShowNoteCompose] = React.useState(false);
   const [showNoteInbox, setShowNoteInbox] = React.useState(false);
-  const [showAppreciationJar, setShowAppreciationJar] = React.useState(false);
 
   // Challenge state
   const [challenge, setChallenge] = React.useState<DailyChallenge | null>(null);
@@ -201,7 +206,9 @@ export default function TodayPage() {
   async function doSendNote(template: string, body: string, emoji?: string) {
     try {
       await sendAppreciationNote(sessionRef.current, { template, body, emoji });
-      setShowNoteCompose(false);
+      // Refresh sent list so the history section in the compose panel updates
+      const sent = await getSentNotes(sessionRef.current);
+      setSentNotes(sent);
       setNotice("Your note is on its way 💌");
     } catch {
       // silent
@@ -229,6 +236,12 @@ export default function TodayPage() {
     }
   }
 
+  function doUnskipChallenge() {
+    // Locally clear the skip flag — no API call; completing later will persist to DB
+    setChallengeStatus({ done: false, skipped: false, note: "" });
+    setNotice("");
+  }
+
   if (loading) {
     return (
       <section className="w-full max-w-3xl">
@@ -241,7 +254,7 @@ export default function TodayPage() {
   }
 
   if (screen?.kind === "no-couple") return <NoCoupleNotice />;
-  if (screen?.kind === "paused") return <PausedNotice />;
+  if (screen?.kind === "paused" || !isEnabled("daily_question")) return <PausedNotice />;
 
   if (!state) {
     return (
@@ -267,14 +280,6 @@ export default function TodayPage() {
           <p className="text-sm font-medium text-ink-soft">{formatDate(state.local_date)}</p>
           <h1 className="mt-1 text-3xl font-semibold">A moment for us.</h1>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowAppreciationJar(true)}
-          className="flex items-center gap-2 rounded-full border border-ink-soft/20 bg-surface px-4 py-2 text-sm font-medium text-ink hover:border-accent/50 hover:bg-accent/5 transition-colors"
-        >
-          <Star className="size-4 text-ink-soft" />
-          Appreciation jar
-        </button>
       </div>
 
       {/* Notices */}
@@ -284,12 +289,7 @@ export default function TodayPage() {
         </p>
       )}
 
-      {showAppreciationJar && (
-        <AppreciationJar
-          notes={sentNotes}
-          onClose={() => setShowAppreciationJar(false)}
-        />
-      )}
+
       {notice && (
         <p role="status" className="rounded-xl border border-ink-soft/20 bg-surface p-3 text-sm text-ink-soft">
           {notice}
@@ -300,92 +300,116 @@ export default function TodayPage() {
       {/* Quick Actions (Appreciation) - reciprocally synced */}
       {isEnabled("appreciation_notes") && (
         <>
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setShowNoteCompose((prev) => !prev)}
-          className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-            showNoteCompose
-              ? "border-accent/60 bg-accent/10 text-accent"
-              : "border-ink-soft/20 bg-surface text-ink hover:border-accent/50 hover:bg-accent/5"
-          }`}
-        >
-          <Heart className="size-4 text-accent" />
-          Appreciate {state.partner_name}
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowNoteInbox((prev) => !prev)}
-          className={`relative flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-            showNoteInbox
-              ? "border-accent/60 bg-accent/10 text-accent"
-              : "border-ink-soft/20 bg-surface text-ink hover:border-accent/50 hover:bg-accent/5"
-          }`}
-        >
-          <Gift className={`size-4 ${showNoteInbox ? "text-accent" : "text-ink-soft"}`} />
-          Notes for you
-          {unreadCount > 0 && (
-            <span className="flex size-5 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-on-accent">
-              {unreadCount}
-            </span>
-          )}
-        </button>
-      </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setShowNoteCompose((prev) => !prev)}
+              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
+                showNoteCompose
+                  ? "border-accent bg-accent/10 text-accent shadow-2xs"
+                  : "border-ink-soft/20 bg-surface text-ink hover:border-accent/50 hover:bg-accent/5"
+              }`}
+            >
+              <Heart className="size-4 text-accent" />
+              Appreciate {state.partner_name}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowNoteInbox((prev) => !prev)}
+              className={`relative flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
+                showNoteInbox
+                  ? "border-accent bg-accent/10 text-accent shadow-2xs"
+                  : "border-ink-soft/20 bg-surface text-ink hover:border-accent/50 hover:bg-accent/5"
+              }`}
+            >
+              <Gift className={`size-4 ${showNoteInbox ? "text-accent" : "text-ink-soft"}`} />
+              Notes for you
+              {unreadCount > 0 && (
+                <span className="flex size-5 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-on-accent">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+          </div>
 
-      {/* Side-by-side panels — each takes 50% when both open, 100% when solo */}
-      {(showNoteCompose || showNoteInbox) && (
-        <div
-          className="grid gap-3 transition-all duration-300"
-          style={{
-            gridTemplateColumns:
-              showNoteCompose && showNoteInbox
-                ? "1fr 1fr"
-                : showNoteCompose
-                ? "1fr"
-                : "1fr",
-          }}
-        >
-          {showNoteCompose && (
-            <div className="min-w-0 transition-all duration-300">
-              <AppreciateCompose
-                partnerName={state.partner_name}
-                onSend={doSendNote}
-                onClose={() => setShowNoteCompose(false)}
-              />
+          {/* Side-by-side panels — responsive stack on mobile, 2-col on desktop */}
+          {(showNoteCompose || showNoteInbox) && (
+            <div
+              className={`grid gap-3 transition-all duration-300 ${
+                showNoteCompose && showNoteInbox ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
+              }`}
+            >
+              {showNoteCompose && (
+                <div className="min-w-0 transition-all duration-300">
+                  <AppreciateCompose
+                    partnerName={state.partner_name}
+                    sentNotes={sentNotes}
+                    onSend={doSendNote}
+                    onClose={() => setShowNoteCompose(false)}
+                  />
+                </div>
+              )}
+              {showNoteInbox && (
+                <div className="min-w-0 transition-all duration-300">
+                  <NoteInbox
+                    notes={receivedNotes}
+                    onMarkRead={async (id) => {
+                      await markNoteRead(sessionRef.current, id);
+                      setReceivedNotes((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+                    }}
+                    onClose={() => setShowNoteInbox(false)}
+                  />
+                </div>
+              )}
             </div>
           )}
-          {showNoteInbox && (
-            <div className="min-w-0 transition-all duration-300">
-              <NoteInbox
-                notes={receivedNotes}
-                onMarkRead={async (id) => {
-                  await markNoteRead(sessionRef.current, id);
-                  setReceivedNotes((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-                }}
-                onClose={() => setShowNoteInbox(false)}
-              />
-            </div>
-          )}
-        </div>
+        </>
       )}
 
       {/* Daily Question Hero */}
-      <article className="rounded-3xl border border-ink-soft/20 bg-surface p-5 sm:p-8">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm font-semibold text-ink-soft">Today's question</span>
+      <article className="rounded-3xl border border-ink-soft/20 bg-surface p-6 sm:p-8 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-ink-soft/10">
           <div className="flex items-center gap-2">
-            <DepthBadge dial={state.depth_dial} />
-            <span className="rounded-full border border-ink-soft/20 px-3 py-1 text-xs text-ink-soft">2–5 min</span>
+            <span className="size-1.5 rounded-full bg-accent" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-ink/75">
+              Today's Question
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Depth Badge: soft squarish tag with theme accent styling */}
+            <div className="inline-flex items-center gap-1.5 rounded-lg border border-accent/25 bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent shadow-2xs">
+              <span className="flex items-center gap-0.5" aria-hidden="true">
+                <span className="size-1.5 rounded-full bg-accent" />
+                <span className={`size-1.5 rounded-full ${state.depth_dial !== "light" ? "bg-accent" : "bg-accent/20"}`} />
+                <span className={`size-1.5 rounded-full ${state.depth_dial === "deep" ? "bg-accent" : "bg-accent/20"}`} />
+              </span>
+              <span className="capitalize">{state.depth_dial} reflection</span>
+            </div>
+
+            {/* Reading/Connection Time: crisp, subtle, theme-aligned chip */}
+            <div className="inline-flex items-center gap-1.5 rounded-lg border border-ink-soft/20 bg-page/80 px-2.5 py-1 text-xs font-medium text-ink shadow-2xs">
+              <Clock className="size-3 text-accent" />
+              <span>2–5 mins</span>
+            </div>
           </div>
         </div>
-        <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug sm:text-3xl">{state.prompt}</h2>
+
+        <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug sm:text-3xl font-heading">
+          {state.prompt}
+        </h2>
 
         {/* Days answered together */}
         {state.days_answered_together > 0 && (
-          <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-soft">
-            <Star className="size-3.5 text-accent" />
-            {state.days_answered_together} days answered together
-          </p>
+          <div className="mt-4 flex items-center gap-2 pt-3 border-t border-ink-soft/10">
+            <span className="flex size-5 items-center justify-center rounded-full bg-accent/15 text-accent">
+              <Heart className="size-3 fill-accent/30 text-accent" />
+            </span>
+            <p className="text-xs font-medium text-ink">
+              <span>{state.days_answered_together} {state.days_answered_together === 1 ? "day" : "days"} answered together</span>
+              <span className="ml-2 font-hand text-accent text-sm">keep the rhythm going ♡</span>
+            </p>
+          </div>
         )}
 
         {state.revealed ? (
@@ -431,8 +455,8 @@ export default function TodayPage() {
         )}
       </article>
 
-      {/* Micro Daily Challenge */}
-      {challenge && (
+      {/* Micro Daily Challenge - only when enabled */}
+      {isEnabled("micro_challenges") && challenge && (
         <ChallengeCard
           challenge={challenge}
           status={challengeStatus}
@@ -441,6 +465,7 @@ export default function TodayPage() {
           onCloseComplete={() => setShowChallengeComplete(false)}
           onComplete={doCompleteChallenge}
           onSkip={doSkipChallenge}
+          onUnskip={doUnskipChallenge}
           busy={busy}
         />
       )}
@@ -453,9 +478,10 @@ export default function TodayPage() {
 }
 
 function AppreciateCompose({
-  partnerName, onSend, onClose,
+  partnerName, sentNotes, onSend, onClose,
 }: {
   partnerName: string;
+  sentNotes: AppreciationNote[];
   onSend: (template: string, body: string, emoji?: string) => void;
   onClose: () => void;
 }) {
@@ -463,18 +489,23 @@ function AppreciateCompose({
   const [body, setBody] = React.useState("");
   const [emoji, setEmoji] = React.useState("");
   const [sending, setSending] = React.useState(false);
+  const [showHistory, setShowHistory] = React.useState(false);
 
   async function handleSend() {
     if (!body.trim()) return;
     setSending(true);
     await onSend(template, body.trim(), emoji || undefined);
+    // Clear form fields after sending; panel stays open so user sees history
+    setBody("");
+    setEmoji("");
+    setShowHistory(true);
     setSending(false);
   }
 
   return (
     <div className="rounded-2xl border border-accent/30 bg-accent/5 p-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="flex items-center justify-between">
-        <p className="font-semibold">Note to {partnerName}</p>
+        <p className="font-semibold">Appreciate {partnerName}</p>
         <button type="button" onClick={onClose} className="rounded-full p-1 text-ink-soft hover:text-ink">
           <X className="size-4" />
         </button>
@@ -529,6 +560,34 @@ function AppreciateCompose({
           Send
         </Button>
       </div>
+
+      {/* Sent history — collapsible */}
+      {sentNotes.length > 0 && (
+        <div className="mt-4 border-t border-ink-soft/10 pt-3">
+          <button
+            type="button"
+            onClick={() => setShowHistory((p) => !p)}
+            className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-ink-soft hover:text-ink transition-colors"
+          >
+            <span>Sent ({sentNotes.length})</span>
+            <ChevronDown className={`size-3.5 transition-transform duration-200 ${showHistory ? "rotate-180" : ""}`} />
+          </button>
+          {showHistory && (
+            <ul className="mt-3 space-y-2 animate-in fade-in duration-200">
+              {sentNotes.map((note) => (
+                <li key={note.id} className="rounded-xl border border-ink-soft/20 bg-page p-3">
+                  <p className="font-hand text-sm leading-relaxed">
+                    <span className="not-font-hand text-xs font-medium text-ink-soft">{note.template} </span>
+                    {note.body}
+                    {note.emoji && ` ${note.emoji}`}
+                  </p>
+                  <p className="mt-1.5 text-xs text-ink-soft">Sent {timeAgo(note.created_at)}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -555,7 +614,10 @@ function NoteInbox({
           {notes.map((note) => (
             <li key={note.id} className={`rounded-xl border p-4 transition-colors ${note.read ? "border-ink-soft/20 bg-page" : "border-accent/30 bg-accent/5"}`}>
               {!note.read && (
-                <span className="mb-2 inline-block rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-on-accent">New</span>
+                <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-accent/15 border border-accent/30 px-2 py-0.5 text-[10px] font-semibold text-accent">
+                  <span className="size-1.5 rounded-full bg-accent animate-pulse" />
+                  New note
+                </span>
               )}
               <p className="font-hand text-base leading-relaxed">
                 <span className="font-medium not-font-hand text-sm text-ink-soft">{note.template} </span>
@@ -582,37 +644,7 @@ function NoteInbox({
   );
 }
 
-function AppreciationJar({ notes, onClose }: { notes: AppreciationNote[]; onClose: () => void }) {
-  return (
-    <div className="rounded-2xl border border-ink-soft/20 bg-surface p-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-semibold">Appreciation jar</p>
-          <p className="mt-1 text-sm text-ink-soft">Notes you have sent, saved to revisit.</p>
-        </div>
-        <button type="button" onClick={onClose} className="rounded-full p-1 text-ink-soft hover:text-ink" aria-label="Close appreciation jar">
-          <X className="size-4" />
-        </button>
-      </div>
-      {notes.length === 0 ? (
-        <p className="mt-4 text-sm text-ink-soft">Your sent notes will collect here.</p>
-      ) : (
-        <ul className="mt-3 space-y-3">
-          {notes.map((note) => (
-            <li key={note.id} className="rounded-xl border border-ink-soft/20 bg-page p-4">
-              <p className="font-hand text-base leading-relaxed">
-                <span className="font-medium not-font-hand text-sm text-ink-soft">{note.template} </span>
-                {note.body}
-                {note.emoji && ` ${note.emoji}`}
-              </p>
-              <p className="mt-2 text-xs text-ink-soft">Sent {timeAgo(note.created_at)}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+
 
 type AnswerFormProps = {
   answer: string;
@@ -871,19 +903,7 @@ function ReactionRow({
   );
 }
 
-function DepthBadge({ dial }: { dial: string }) {
-  const map: Record<string, { label: string; color: string }> = {
-    light: { label: "Light", color: "text-emerald-600 border-emerald-500/30 bg-emerald-500/5" },
-    mixed: { label: "Mixed", color: "text-amber-600 border-amber-500/30 bg-amber-500/5" },
-    deep: { label: "Deep", color: "text-purple-600 border-purple-500/30 bg-purple-500/5" },
-  };
-  const { label, color } = map[dial] ?? map.mixed;
-  return (
-    <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${color}`}>
-      {label}
-    </span>
-  );
-}
+
 
 function StatusLine({ done, label }: { done: boolean; label: string }) {
   return (
@@ -916,70 +936,121 @@ type ChallengeCardProps = {
   onCloseComplete: () => void;
   onComplete: (note: string) => void;
   onSkip: () => void;
+  onUnskip: () => void;
   busy: boolean;
 };
 
-function ChallengeCard({ challenge, status, showComplete, onOpenComplete, onCloseComplete, onComplete, onSkip }: ChallengeCardProps) {
+function ChallengeCard({
+  challenge,
+  status,
+  showComplete,
+  onOpenComplete,
+  onCloseComplete,
+  onComplete,
+  onSkip,
+  onUnskip,
+}: ChallengeCardProps) {
   const [noteText, setNoteText] = React.useState("");
 
-  const categoryColor: Record<string, string> = {
-    affection: "text-pink-600 bg-pink-500/10 border-pink-500/20",
-    words: "text-blue-600 bg-blue-500/10 border-blue-500/20",
-    play: "text-amber-600 bg-amber-500/10 border-amber-500/20",
-    reflection: "text-purple-600 bg-purple-500/10 border-purple-500/20",
-    service: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20",
-  };
-
   return (
-    <article className="rounded-3xl border border-ink-soft/20 bg-surface p-5 sm:p-6">
-      <div className="flex items-center justify-between gap-3">
+    <article className="rounded-3xl border border-ink-soft/20 bg-surface p-5 sm:p-6 transition-all shadow-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-ink-soft/10">
         <div className="flex items-center gap-2">
-          <Zap className="size-4 text-accent" />
-          <span className="text-sm font-semibold text-ink-soft">Today's challenge</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${categoryColor[challenge.category] ?? ""}`}>
-            {challenge.category}
+          <span className="size-1.5 rounded-full bg-accent" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-ink/75">
+            Daily Challenge
           </span>
-          <span className="rounded-full border border-ink-soft/20 px-2.5 py-0.5 text-xs text-ink-soft">{challenge.duration_label}</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Category Chip in theme accent */}
+          <div className="inline-flex items-center gap-1.5 rounded-lg border border-accent/25 bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent shadow-2xs capitalize">
+            {challenge.category === "affection" ? (
+              <Heart className="size-3 text-accent fill-accent/30" />
+            ) : challenge.category === "words" ? (
+              <MessageSquare className="size-3 text-accent" />
+            ) : challenge.category === "play" ? (
+              <Sparkles className="size-3 text-accent" />
+            ) : challenge.category === "reflection" ? (
+              <Compass className="size-3 text-accent" />
+            ) : (
+              <Gift className="size-3 text-accent" />
+            )}
+            <span>{challenge.category}</span>
+          </div>
+
+          {/* Duration Chip */}
+          <div className="inline-flex items-center gap-1.5 rounded-lg border border-ink-soft/20 bg-page/80 px-2.5 py-1 text-xs font-medium text-ink shadow-2xs">
+            <Timer className="size-3 text-accent" />
+            <span>{challenge.duration_label}</span>
+          </div>
         </div>
       </div>
 
-      <h2 className="mt-4 text-xl font-semibold">{challenge.title}</h2>
+      <h2 className="mt-4 text-xl font-semibold font-heading">{challenge.title}</h2>
       <p className="mt-2 text-sm leading-6 text-ink-soft">{challenge.body}</p>
 
       {status.done ? (
-        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
-          <Sparkles className="size-4 text-emerald-600 shrink-0" />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Done today ✓</p>
-            {status.note && <p className="mt-0.5 truncate text-xs text-ink-soft">{status.note}</p>}
+        <div className="mt-5 rounded-2xl border border-accent/25 bg-accent/5 p-4 sm:p-5 transition-all">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent shadow-xs">
+                <Check className="size-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-ink">Completed for today</p>
+                <p className="text-xs text-ink-soft">A shared micro-connection checked off together.</p>
+              </div>
+            </div>
+            <span className="font-hand text-xs text-accent hidden sm:inline-block">moment shared ♡</span>
           </div>
+          {status.note && (
+            <div className="mt-3 rounded-xl border border-ink-soft/15 bg-page/90 p-3 font-hand text-sm text-ink leading-relaxed">
+              “{status.note}”
+            </div>
+          )}
         </div>
       ) : status.skipped ? (
-        <div className="mt-4 flex items-center gap-2 rounded-2xl border border-ink-soft/20 bg-page px-4 py-3">
-          <span className="size-2 rounded-full bg-ink-soft/50" />
-          <p className="text-sm text-ink-soft">Skipped today. There is no penalty.</p>
+        <div className="mt-4 rounded-2xl border border-ink-soft/15 bg-page/70 p-4 transition-all">
+          <div className="flex items-center gap-2">
+            <span className="size-2 shrink-0 rounded-full bg-ink-soft/40" />
+            <p className="text-sm text-ink-soft">Taking a breather today. No pressure at all.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onUnskip}
+            className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline transition-colors cursor-pointer"
+          >
+            <Zap className="size-3" />
+            Actually, I'd like to do this
+          </button>
         </div>
       ) : showComplete ? (
         <div className="mt-4 space-y-3 animate-in fade-in duration-200">
           <Textarea
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
-            placeholder="Add a note or photo caption (optional)…"
+            placeholder="Add a sweet note or photo caption (optional)…"
             rows={2}
             maxLength={300}
-            className="resize-none rounded-2xl border-ink-soft/20 bg-page text-sm"
+            className="resize-none rounded-2xl border-ink-soft/20 bg-page text-sm font-hand"
           />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
-              onClick={() => { onComplete(noteText); setNoteText(""); }}
-              className="flex-1 rounded-full bg-accent text-on-accent hover:bg-accent/90"
+              onClick={() => {
+                onComplete(noteText);
+                setNoteText("");
+              }}
+              className="flex-1 rounded-full bg-accent text-on-accent hover:bg-accent/90 cursor-pointer"
             >
               <Check className="size-4" />
               Mark done
             </Button>
-            <Button variant="outline" onClick={onCloseComplete} className="rounded-full">
+            <Button
+              variant="outline"
+              onClick={onCloseComplete}
+              className="rounded-full cursor-pointer"
+            >
               Keep for later
             </Button>
           </div>
@@ -988,12 +1059,16 @@ function ChallengeCard({ challenge, status, showComplete, onOpenComplete, onClos
         <div className="mt-4 flex flex-wrap gap-2">
           <Button
             onClick={onOpenComplete}
-            className="rounded-full bg-accent text-on-accent hover:bg-accent/90"
+            className="rounded-full bg-accent text-on-accent hover:bg-accent/90 cursor-pointer"
           >
             <Check className="size-4" />
             Done
           </Button>
-          <Button variant="outline" onClick={onSkip} className="rounded-full text-ink-soft">
+          <Button
+            variant="outline"
+            onClick={onSkip}
+            className="rounded-full text-ink-soft hover:text-ink cursor-pointer"
+          >
             Not today
           </Button>
         </div>
@@ -1027,14 +1102,24 @@ function PausedNotice() {
   return (
     <section className="w-full max-w-3xl">
       <h1 className="text-3xl font-semibold">Today</h1>
-      <div className="mt-6 rounded-2xl border border-ink-soft/20 bg-surface p-5">
-        <p className="font-semibold">Daily questions are paused</p>
-        <p className="mt-1 text-sm leading-6 text-ink-soft">
-          Either partner can turn this shared feature back on in Settings.
-        </p>
-        <Link to="/app/settings" className="mt-3 inline-block text-sm font-semibold underline underline-offset-4">
-          Manage shared features
-        </Link>
+      <div className="mt-6 rounded-2xl border border-ink-soft/20 bg-surface p-5 sm:p-6 shadow-xs">
+        <div className="flex items-start gap-3.5">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+            <PauseCircle className="size-5" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-ink">Daily questions are paused</h2>
+            <p className="mt-1 text-sm leading-6 text-ink-soft">
+              Either partner can turn this shared feature back on anytime in Settings.
+            </p>
+            <Button asChild variant="outline" size="sm" className="mt-4 rounded-full">
+              <Link to="/app/settings" className="inline-flex items-center gap-1.5">
+                <span>Manage shared features</span>
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </section>
   );
