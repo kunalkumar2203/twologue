@@ -6,6 +6,13 @@ export type AuthUser = {
   user_metadata?: Record<string, unknown>;
 };
 
+export type SignupProfile = {
+  displayName: string;
+  gender: string;
+  age: number;
+  timeZone: string;
+};
+
 export type AuthSession = {
   access_token: string;
   refresh_token: string;
@@ -164,7 +171,7 @@ export function storeSession(session: AuthSession | null) {
   else localStorage.removeItem(SESSION_KEY);
 }
 
-export async function signUpWithPassword(email: string, password: string, displayName: string, redirectTo?: string) {
+export async function signUpWithPassword(email: string, password: string, profile: SignupProfile, redirectTo?: string) {
   requireConfig();
   const redirect = redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")
     ? `${window.location.origin}${redirectTo}`
@@ -172,7 +179,16 @@ export async function signUpWithPassword(email: string, password: string, displa
   const response = await fetch(`${SUPABASE_URL}/auth/v1/signup?redirect_to=${encodeURIComponent(redirect)}`, {
     method: "POST",
     headers: authHeaders(),
-    body: JSON.stringify({ email, password, data: { display_name: displayName.trim(), timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC" } }),
+    body: JSON.stringify({
+      email,
+      password,
+      data: {
+        display_name: profile.displayName.trim(),
+        gender: profile.gender,
+        age: profile.age,
+        time_zone: profile.timeZone,
+      },
+    }),
   });
   return parseResponse<SupabaseAuthResponse>(response);
 }

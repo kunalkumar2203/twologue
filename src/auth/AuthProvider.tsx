@@ -10,6 +10,7 @@ import {
   supabaseConfigured,
   type AuthSession,
   type AuthUser,
+  type SignupProfile,
 } from "@/lib/supabase";
 
 type AuthContextValue = {
@@ -17,7 +18,7 @@ type AuthContextValue = {
   session: AuthSession | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string, redirectTo?: string) => Promise<boolean>;
+  signUp: (email: string, password: string, profile: SignupProfile, redirectTo?: string) => Promise<boolean>;
   signOut: () => Promise<void>;
 };
 
@@ -132,8 +133,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     commitSession(nextSession);
   }, [commitSession]);
 
-  const signUp = React.useCallback(async (email: string, password: string, displayName: string, redirectTo?: string) => {
-    const result = await requestSignUp(email.trim(), password, displayName, redirectTo);
+  const signUp = React.useCallback(async (email: string, password: string, profile: SignupProfile, redirectTo?: string) => {
+    const result = await requestSignUp(email.trim(), password, profile, redirectTo);
     const nextSession = result.access_token && result.refresh_token && result.user
       ? {
           access_token: result.access_token,
