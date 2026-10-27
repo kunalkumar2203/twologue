@@ -39,7 +39,6 @@ import {
   getChallengeStatus,
   completeChallenge,
   skipChallenge,
-  MOOD_OPTIONS,
   type TodayState,
   type TodayScreen,
   type AppreciationNote,
@@ -80,7 +79,7 @@ export default function TodayPage() {
   const [error, setError] = React.useState("");
   const [notice, setNotice] = React.useState("");
 
-  const { myMood, saveMood, setPartnerName } = useMood();
+  const { setPartnerName } = useMood();
 
   // Appreciation notes state
   const [receivedNotes, setReceivedNotes] = React.useState<AppreciationNote[]>([]);
@@ -297,38 +296,10 @@ export default function TodayPage() {
         </p>
       )}
 
-      {/* Atmosphere / Mood check-in banner if not set yet today */}
-      {!myMood && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-dashed border-accent/40 bg-accent/5 p-3.5 sm:p-4 shadow-xs transition-all">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-accent/15 text-xl">
-              🌤️
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-accent">Today's Atmosphere</p>
-              <p className="text-sm font-semibold text-ink">How are you feeling today?</p>
-              <p className="text-xs text-ink-soft">Check in with {state.partner_name || "your partner"}. Resets daily at midnight.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 self-start sm:self-auto flex-wrap">
-            {MOOD_OPTIONS.map((m) => (
-              <button
-                key={m.icon}
-                type="button"
-                onClick={() => void saveMood(m.icon, m.label, "")}
-                className="flex items-center gap-1.5 rounded-xl border border-accent/25 bg-page px-3 py-1.5 text-sm font-medium text-ink hover:border-accent hover:bg-accent/10 hover:scale-105 transition-all cursor-pointer shadow-2xs"
-                title={`Set mood to ${m.label}`}
-                aria-label={`Set mood to ${m.label}`}
-              >
-                <span>{m.icon}</span>
-                <span className="text-xs">{m.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Quick Actions (Appreciation) */}
+      {/* Quick Actions (Appreciation) - reciprocally synced */}
+      {isEnabled("appreciation_notes") && (
+        <>
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
