@@ -1079,21 +1079,20 @@ function ChallengeCard({
 
 function NoCoupleNotice() {
   return (
-    <section className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center py-12 text-center">
-      <div className="flex size-16 items-center justify-center rounded-3xl bg-accent/10 text-accent">
+    <section className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center py-12">
+      <div className="text-center">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-3xl bg-accent/10 text-accent">
         <Heart className="size-7" />
+        </div>
+        <p className="mt-6 text-sm font-semibold text-ink-soft">A little ritual for two</p>
+        <h1 className="mt-2 text-3xl font-semibold">Start with your shared space.</h1>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-ink-soft">
+          Invite your partner to unlock today's question, challenges and the rest of your shared space.
+        </p>
       </div>
-      <p className="mt-6 text-sm font-semibold text-ink-soft">A little ritual for two</p>
-      <h1 className="mt-2 text-3xl font-semibold">Start with your shared space.</h1>
-      <p className="mt-3 max-w-md text-sm leading-6 text-ink-soft">
-        Pair your account first. Then today's question, private answers and the reveal will belong to both of you.
-      </p>
-      <Button asChild className="mt-6 rounded-full bg-accent text-on-accent hover:bg-accent/90">
-        <Link to="/app/us">
-          Set up your shared space
-          <ArrowRight className="size-4" />
-        </Link>
-      </Button>
+      <div className="mt-8">
+        <InvitePartnerCard />
+      </div>
     </section>
   );
 }

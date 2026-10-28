@@ -186,7 +186,7 @@ export async function getTodayScreen(session: AuthSession | null): Promise<Today
 
   const auth = requireSession(session);
   const couple = await getMyCouple(auth);
-  if (!couple.couple) return { kind: "no-couple" };
+  if (!couple.couple || !couple.partner) return { kind: "no-couple" };
 
   const flags = await restGet<{ enabled: boolean }[]>(
     `couple_features?select=enabled&couple_id=eq.${encodeURIComponent(couple.couple.id)}&feature_key=eq.daily_question`,
