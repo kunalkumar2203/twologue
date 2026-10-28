@@ -7,6 +7,42 @@ import { supabaseConfigured, supabaseSetupMessage } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+const COMMON_TIME_ZONES = [
+  { value: "UTC", label: "UTC (Coordinated Universal Time)" },
+  { value: "America/Los_Angeles", label: "Pacific Time (Los Angeles, Vancouver)" },
+  { value: "America/Denver", label: "Mountain Time (Denver, Phoenix)" },
+  { value: "America/Chicago", label: "Central Time (Chicago, Mexico City)" },
+  { value: "America/New_York", label: "Eastern Time (New York, Toronto)" },
+  { value: "America/Sao_Paulo", label: "Brasilia Time (São Paulo)" },
+  { value: "America/Argentina/Buenos_Aires", label: "Argentina Time (Buenos Aires)" },
+  { value: "America/Halifax", label: "Atlantic Time (Halifax)" },
+  { value: "Europe/London", label: "London (United Kingdom)" },
+  { value: "Europe/Dublin", label: "Dublin (Ireland)" },
+  { value: "Europe/Lisbon", label: "Lisbon (Portugal)" },
+  { value: "Europe/Paris", label: "Central European Time (Paris, Berlin)" },
+  { value: "Europe/Amsterdam", label: "Central European Time (Amsterdam)" },
+  { value: "Europe/Athens", label: "Eastern European Time (Athens)" },
+  { value: "Europe/Helsinki", label: "Eastern European Time (Helsinki)" },
+  { value: "Europe/Moscow", label: "Moscow Time (Moscow)" },
+  { value: "Africa/Cairo", label: "Eastern European Time (Cairo)" },
+  { value: "Africa/Johannesburg", label: "South Africa Standard Time (Johannesburg)" },
+  { value: "Asia/Dubai", label: "Gulf Standard Time (Dubai)" },
+  { value: "Asia/Karachi", label: "Pakistan Standard Time (Karachi)" },
+  { value: "Asia/Kolkata", label: "India Standard Time (Mumbai, New Delhi)" },
+  { value: "Asia/Dhaka", label: "Bangladesh Standard Time (Dhaka)" },
+  { value: "Asia/Bangkok", label: "Indochina Time (Bangkok)" },
+  { value: "Asia/Singapore", label: "Singapore Time (Singapore)" },
+  { value: "Asia/Hong_Kong", label: "Hong Kong Time (Hong Kong)" },
+  { value: "Asia/Shanghai", label: "China Standard Time (Shanghai, Beijing)" },
+  { value: "Asia/Tokyo", label: "Japan Standard Time (Tokyo)" },
+  { value: "Asia/Seoul", label: "Korea Standard Time (Seoul)" },
+  { value: "Australia/Perth", label: "Australian Western Time (Perth)" },
+  { value: "Australia/Adelaide", label: "Australian Central Time (Adelaide)" },
+  { value: "Australia/Sydney", label: "Australian Eastern Time (Sydney, Melbourne)" },
+  { value: "Pacific/Auckland", label: "New Zealand Time (Auckland)" },
+  { value: "Pacific/Honolulu", label: "Hawaii-Aleutian Time (Honolulu)" },
+] as const;
+
 export default function AuthPage() {
   const { signIn, signUp, user } = useAuth();
   const [params] = useSearchParams();
@@ -15,7 +51,10 @@ export default function AuthPage() {
   const [displayName, setDisplayName] = React.useState("");
   const [gender, setGender] = React.useState("");
   const [age, setAge] = React.useState("");
-  const [timeZone, setTimeZone] = React.useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC");
+  const [timeZone, setTimeZone] = React.useState(() => {
+    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return COMMON_TIME_ZONES.some((zone) => zone.value === detected) ? detected : "UTC";
+  });
   const [signupStep, setSignupStep] = React.useState<1 | 2>(1);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -38,7 +77,10 @@ export default function AuthPage() {
       return;
     }
     if (mode === "signup" && signupStep === 1) {
+      setBusy(true);
+      await new Promise((resolve) => window.setTimeout(resolve, 800));
       setSignupStep(2);
+      setBusy(false);
       return;
     }
     if (mode === "signup" && !gender) {
@@ -126,7 +168,6 @@ export default function AuthPage() {
                       <option value="woman">Woman</option>
                       <option value="man">Man</option>
                       <option value="non_binary">Non-binary</option>
-                      <option value="self_described">Prefer to self-describe</option>
                       <option value="prefer_not_to_say">Prefer not to say</option>
                     </select>
                   </label>
@@ -136,7 +177,17 @@ export default function AuthPage() {
                   </label>
                   <label className="block space-y-1.5 text-sm font-medium">
                     Time zone
-                    <Input value={timeZone} onChange={(event) => setTimeZone(event.target.value)} placeholder="e.g. Asia/Kolkata" required />
+                    <select
+                      className="flex h-10 w-full rounded-md border border-ink-soft/20 bg-surface px-3 text-sm outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
+                      value={timeZone}
+                      onChange={(event) => setTimeZone(event.target.value)}
+                      required
+                    >
+                      <option value="" disabled>Select your time zone</option>
+                      {COMMON_TIME_ZONES.map((zone) => (
+                        <option key={zone.value} value={zone.value}>{zone.label}</option>
+                      ))}
+                    </select>
                   </label>
                 </>
               )}
