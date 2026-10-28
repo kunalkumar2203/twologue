@@ -8,10 +8,11 @@ import AuthPage from "./pages/AuthPage";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import TodayPage from "./features/today/TodayPage";
+import JournalPage from "./features/journal/JournalPage";
+import UsPage from "./features/couples/UsPage";
 import { USE_MOCK_API } from "./features/today/api";
 import { MoodProvider } from "./features/today/MoodContext";
 import LandingPage from "./pages/LandingPage";
-import UsPage from "./features/couples/UsPage";
 import JoinInvitePage from "./features/couples/JoinInvitePage";
 
 const SkipGate = ({ children }: { children: ReactNode }) => <>{children}</>;
@@ -38,12 +39,16 @@ export default createBrowserRouter([
     ),
     children: [
       { index: true, element: <TodayPage /> },
-      ...TABS.slice(1).map((tab) => ({
-        path: tab.path.replace(/^\//, ""),
-        element: tab.path === "us" ? <UsPage /> : <Placeholder section={tab.path} title={tab.label} blurb={tab.blurb} />,
-      })),
+      ...TABS.slice(1)
+        .filter((tab) => tab.path !== "journal" && tab.path !== "us")
+        .map((tab) => ({
+          path: tab.path.replace(/^\//, ""),
+          element: <Placeholder section={tab.path} title={tab.label} blurb={tab.blurb} />,
+        })),
       { path: "settings", element: <Settings /> },
       { path: "profile", element: <Profile /> },
+      { path: "journal", element: <JournalPage /> },
+      { path: "us", element: <UsPage /> },
     ],
   },
 ]);
