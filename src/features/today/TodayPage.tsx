@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 
+import { StoryTurnCard } from "@/features/journal/StoryTurnCard";
 import { useAuth } from "@/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -296,6 +297,7 @@ export default function TodayPage() {
         </p>
       )}
 
+      <StoryTurnCard />
 
       {/* Quick Actions (Appreciation) - reciprocally synced */}
       {isEnabled("appreciation_notes") && (
