@@ -1,3 +1,4 @@
+import TimeCapsuleSection from "@/features/capsules/TimeCapsuleSection";
 import InvitePartnerCard from "./InvitePartnerCard";
 import ChallengeHistory from "../challenges/ChallengeHistory";
 
@@ -12,14 +13,16 @@ export default function UsPage() {
         </p>
       </div>
 
-      {/* Partner Connection / Invite Area */}
       <div>
         <InvitePartnerCard />
       </div>
 
       <hr className="border-ink-soft/10" />
 
-      {/* Shared Challenge History from couple_content_history */}
+      <TimeCapsuleSection />
+
+      <hr className="border-ink-soft/10" />
+
       <div>
         <ChallengeHistory />
       </div>
