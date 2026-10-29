@@ -30,7 +30,7 @@ type SupabaseAuthResponse = Omit<Partial<AuthSession>, "user"> & {
   token_type?: string;
 };
 
-type SupabaseDatabase = {
+export type Database = {
   public: {
     Tables: {
       couples: { Row: Record<string, unknown>; Insert: Record<string, unknown>; Update: Record<string, unknown>; Relationships: [] };
@@ -44,6 +44,44 @@ type SupabaseDatabase = {
       accept_invite: { Args: { p_code: string }; Returns: string };
       cancel_invite: { Args: Record<string, never>; Returns: null };
       unlink_couple: { Args: Record<string, never>; Returns: null };
+      get_journal_today: { Args: Record<string, never>; Returns: Record<string, unknown> | null };
+      save_journal_draft: { Args: { p_instance_id: string; p_body: string }; Returns: null };
+      submit_journal_entry: { Args: { p_instance_id: string; p_body: string }; Returns: null };
+      pass_journal_prompt: { Args: { p_instance_id: string }; Returns: null };
+      submit_reveal_reaction: {
+        Args: { p_session_id: string; p_reaction: string; p_reply: string | null };
+        Returns: null;
+      };
+      list_journal_pages: {
+        Args: { p_limit: number; p_offset: number };
+        Returns: Record<string, unknown>[];
+      };
+      list_time_capsules: { Args: Record<string, never>; Returns: Record<string, unknown> | null };
+      create_time_capsule: {
+        Args: { p_title: string; p_body: string; p_audience: string; p_occasion: string; p_custom_date: string | null };
+        Returns: string;
+      };
+      update_time_capsule: {
+        Args: {
+          p_capsule_id: string;
+          p_title: string;
+          p_body: string;
+          p_audience: string;
+          p_occasion: string;
+          p_custom_date: string | null;
+        };
+        Returns: void;
+      };
+      delete_time_capsule: { Args: { p_capsule_id: string }; Returns: void };
+      open_time_capsule: { Args: { p_capsule_id: string }; Returns: string };
+      get_story_shelf: { Args: Record<string, never>; Returns: Record<string, unknown> | null };
+      start_story: {
+        Args: { p_title: string; p_kind: string; p_opening: string; p_starter_id: string | null };
+        Returns: string;
+      };
+      save_story_draft: { Args: { p_story_id: string; p_body: string }; Returns: null };
+      submit_story_paragraph: { Args: { p_story_id: string; p_body: string }; Returns: null };
+      finish_story: { Args: { p_story_id: string }; Returns: null };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
@@ -79,13 +117,13 @@ function requireConfig() {
 }
 
 let activeAccessToken = "";
-let sessionClient: SupabaseClient<SupabaseDatabase> | null = null;
+let sessionClient: SupabaseClient<Database> | null = null;
 
 export function supabaseForSession(session: AuthSession) {
   requireConfig();
   activeAccessToken = session.access_token;
   if (!sessionClient) {
-    sessionClient = createClient<SupabaseDatabase>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+    sessionClient = createClient<Database>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
       auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
       global: {
         fetch: (input, init) => {
