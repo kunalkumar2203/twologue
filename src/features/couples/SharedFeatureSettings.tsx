@@ -77,24 +77,28 @@ export function SharedFeatureSettings() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold">{item.label}</p>
-                      <span
-                        className={cn(
-                          "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                          enabled
-                            ? "bg-accent/15 text-accent"
-                            : paused
-                              ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
-                              : "bg-ink-soft/15 text-ink-soft",
-                        )}
-                      >
-                        {enabled ? "On for both" : paused ? `Paused by ${partnerName}` : "Off"}
-                      </span>
+                      {enabled ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border border-accent/25 bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent shadow-2xs">
+                          <span className="size-1.5 rounded-full bg-accent" aria-hidden="true" />
+                          <span>On for both</span>
+                        </span>
+                      ) : paused ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border border-accent/25 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent shadow-2xs">
+                          <span className="size-1.5 rounded-full bg-accent/50" aria-hidden="true" />
+                          <span>Paused by {partnerName}</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border border-ink-soft/20 bg-page/80 px-2.5 py-1 text-xs font-medium text-ink-soft shadow-2xs">
+                          <span className="size-1.5 rounded-full bg-ink-soft/40" aria-hidden="true" />
+                          <span>Off</span>
+                        </span>
+                      )}
                     </div>
                     <p className="mt-1 text-sm leading-5 text-ink-soft">{item.detail}</p>
                   </div>
                   <Switch
                     checked={enabled}
-                    disabled={saving || !canToggleFeature(item.key)}
+                    disabled={!canToggleFeature(item.key)}
                     onCheckedChange={(checked) => setFeature(item.key, checked)}
                     aria-label={`Turn ${item.label} on or off`}
                   />
@@ -157,7 +161,6 @@ export function SharedFeatureSettings() {
                       </div>
                       <Switch
                         checked={Boolean(challenge.spicy)}
-                        disabled={saving}
                         onCheckedChange={(checked) => updateFeature("micro_challenges", { settings: { spicy: checked } })}
                         aria-label="Allow spicier challenges"
                       />
