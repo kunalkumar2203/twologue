@@ -4,8 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAutosave } from "@/hooks/use-autosave";
 import { cn } from "@/lib/utils";
-import { useFinishStory, useSaveStoryDraft, useSubmitStoryParagraph } from "./hooks";
-import { kindLabel, timeLeft } from "./journal-utils";
+import {
+  useExtendStoryTurn,
+  useFinishStory,
+  useSaveStoryDraft,
+  useSubmitStoryParagraph,
+  useSurrenderStoryTurn,
+} from "./hooks";
+import { isTurnExpired, kindLabel, timeLeft } from "./journal-utils";
 import { storyMessage, type Story } from "./stories-api";
 
 const MAX_LENGTH = 1500;
@@ -13,13 +19,16 @@ const MAX_LENGTH = 1500;
 export default function StoryView({ story, partnerName }: { story: Story; partnerName: string }) {
   const myTurn = story.turn === "me";
   const [draft, setDraft] = React.useState(story.my_draft ?? "");
-  const [step, setStep] = React.useState<"send" | "finish" | null>(null);
+  const [step, setStep] = React.useState<"send" | "finish" | "surrender" | null>(null);
   const saveDraft = useSaveStoryDraft();
   const submit = useSubmitStoryParagraph();
   const finish = useFinishStory();
+  const extendTurn = useExtendStoryTurn();
+  const surrenderTurn = useSurrenderStoryTurn();
   const autosave = useAutosave((value) => saveDraft.mutateAsync({ storyId: story.id, body: value }));
-  const busy = submit.isPending || finish.isPending;
+  const busy = submit.isPending || finish.isPending || extendTurn.isPending || surrenderTurn.isPending;
   const due = timeLeft(story.turn_due_at);
+  const expired = isTurnExpired(story.turn_due_at);
 
   const update = (value: string) => {
     setDraft(value);
@@ -45,6 +54,27 @@ export default function StoryView({ story, partnerName }: { story: Story; partne
     }
   };
 
+  const handleExtend = async () => {
+    try {
+      await extendTurn.mutateAsync({ storyId: story.id });
+      setStep(null);
+    } catch {
+      // Shown below the composer
+    }
+  };
+
+  const handleSurrender = async () => {
+    try {
+      if (draft.trim()) {
+        await autosave.flush();
+      }
+      await surrenderTurn.mutateAsync({ storyId: story.id });
+      setStep(null);
+    } catch {
+      // Shown below the composer
+    }
+  };
+
   const status =
     autosave.state === "saving"
       ? "Saving…"
@@ -53,6 +83,8 @@ export default function StoryView({ story, partnerName }: { story: Story; partne
         : draft
           ? "Drafts stay private until you send them."
           : "";
+
+  const error = submit.error || finish.error || extendTurn.error || surrenderTurn.error;
 
   return (
     <section className="space-y-6">
@@ -73,6 +105,54 @@ export default function StoryView({ story, partnerName }: { story: Story; partne
           {due && <p className="mt-1.5 text-xs text-ink-soft">{due}</p>}
         </div>
       </header>
+
+      {myTurn && expired && (
+        <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 space-y-3">
+          <div className="space-y-1">
+            <p className="text-sm font-medium">Turn time has passed</p>
+            <p className="text-xs text-ink-soft">
+              {story.turn_extended
+                ? "You have already used the 3-day extension for this turn. You can still finish writing your paragraph, or surrender the turn so your partner can write next."
+                : "No pressure at all. You can extend your turn by up to 3 days, or surrender the turn to let your partner write."}
+            </p>
+          </div>
+
+          {step === "surrender" ? (
+            <ConfirmStep
+              message={`Surrender your turn to ${partnerName}? Any draft you started remains saved.`}
+              confirmLabel="Surrender turn"
+              busy={busy}
+              onConfirm={handleSurrender}
+              onCancel={() => setStep(null)}
+            />
+          ) : (
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {!story.turn_extended && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={busy}
+                  onClick={handleExtend}
+                  className="rounded-full text-xs"
+                >
+                  Extend turn (+3 days)
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={busy}
+                onClick={() => setStep("surrender")}
+                className="rounded-full text-xs text-ink-soft hover:text-ink"
+              >
+                Surrender turn
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       <ol className="space-y-3">
         {story.paragraphs.map((paragraph) => (
@@ -134,27 +214,49 @@ export default function StoryView({ story, partnerName }: { story: Story; partne
         {!myTurn && <p className="text-xs text-ink-soft">You can send once it's your turn.</p>}
       </div>
 
-      {step === "finish" ? (
-        <ConfirmStep
-          message="Finishing moves the story to your archive. Unsent drafts are discarded."
-          confirmLabel="Finish story"
-          busy={busy}
-          onConfirm={end}
-          onCancel={() => setStep(null)}
-        />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setStep("finish")}
-          className="text-sm text-ink-soft underline underline-offset-4 hover:text-ink"
-        >
-          Finish and archive this story
-        </button>
-      )}
+      <div className="flex flex-wrap items-center gap-4">
+        {step === "finish" ? (
+          <ConfirmStep
+            message="Finishing moves the story to your archive. Unsent drafts are discarded."
+            confirmLabel="Finish story"
+            busy={busy}
+            onConfirm={end}
+            onCancel={() => setStep(null)}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setStep("finish")}
+            className="text-sm text-ink-soft underline underline-offset-4 hover:text-ink"
+          >
+            Finish and archive this story
+          </button>
+        )}
 
-      {(submit.isError || finish.isError) && (
+        {myTurn && !expired && (
+          step === "surrender" ? (
+            <ConfirmStep
+              message={`Surrender your turn to ${partnerName}? Any draft you started remains saved.`}
+              confirmLabel="Surrender turn"
+              busy={busy}
+              onConfirm={handleSurrender}
+              onCancel={() => setStep(null)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setStep("surrender")}
+              className="text-sm text-ink-soft underline underline-offset-4 hover:text-ink"
+            >
+              Surrender turn to {partnerName}
+            </button>
+          )
+        )}
+      </div>
+
+      {error && (
         <p role="alert" className="text-sm text-red-700 dark:text-red-300">
-          {storyMessage(submit.isError ? submit.error : finish.error)}
+          {storyMessage(error)}
         </p>
       )}
     </section>
