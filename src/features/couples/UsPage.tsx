@@ -1,8 +1,26 @@
+import * as React from "react";
+import { useLocation } from "react-router";
+import { MessageCircleHeart } from "lucide-react";
 import TimeCapsuleSection from "@/features/capsules/TimeCapsuleSection";
+import JournalPages from "@/features/journal/JournalPages";
 import InvitePartnerCard from "./InvitePartnerCard";
 import ChallengeHistory from "../challenges/ChallengeHistory";
 
 export default function UsPage() {
+  const location = useLocation();
+
+  React.useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      const timer = setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash]);
   return (
     <section className="w-full max-w-3xl space-y-8 pb-12">
       <div>
@@ -23,7 +41,24 @@ export default function UsPage() {
 
       <hr className="border-ink-soft/10" />
 
-      <div>
+      <section id="answers" className="space-y-4 scroll-mt-8">
+        <div>
+          <h2 className="flex items-center gap-2 text-xl font-semibold">
+            <MessageCircleHeart className="size-5 text-accent" /> Our answers
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Past answers to your daily questions, revealed together.
+          </p>
+        </div>
+        <JournalPages
+          kind="daily_question"
+          emptyText="Your answers gather here once you've both revealed a daily question."
+        />
+      </section>
+
+      <hr className="border-ink-soft/10" />
+
+      <div id="challenges" className="scroll-mt-8">
         <ChallengeHistory />
       </div>
     </section>

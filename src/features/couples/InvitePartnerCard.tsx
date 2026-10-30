@@ -95,13 +95,20 @@ export default function InvitePartnerCard() {
   if (partner) {
     const name = partner.display_name?.trim() || "Your partner";
     return (
-      <div className="rounded-2xl border border-ink-soft/20 bg-surface p-5">
-        <div className="flex items-center gap-3">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/10 font-semibold text-accent">{initials(name)}</span>
-          <div><p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink-soft">Connected</p><h2 className="text-xl font-semibold">{name}</h2></div>
-          <Check className="ml-auto size-5 text-accent" aria-hidden="true" />
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-ink-soft/20 bg-surface px-4 py-3 shadow-2xs">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent">
+            {initials(name)}
+          </span>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-soft">Connected</p>
+            <p className="text-sm font-semibold truncate text-ink">{name}</p>
+          </div>
         </div>
-        <p className="mt-4 text-sm text-ink-soft">You are connected. Your shared space is ready.</p>
+        <div className="flex items-center gap-1.5 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent shrink-0">
+          <Check className="size-3.5" aria-hidden="true" />
+          <span>Connected</span>
+        </div>
       </div>
     );
   }
