@@ -93,6 +93,10 @@ export type Database = {
         Args: { p_kind: string; p_limit: number; p_offset: number };
         Returns: Record<string, unknown>[];
       };
+      list_daily_question_history: {
+        Args: { p_limit: number; p_offset: number };
+        Returns: Record<string, unknown>[];
+      };
       get_today_state: { Args: Record<string, never>; Returns: Record<string, unknown> };
       submit_daily_answer: { Args: { p_session_id: string; p_answer: string }; Returns: null };
       request_daily_reveal: { Args: { p_session_id: string }; Returns: boolean };

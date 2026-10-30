@@ -1,5 +1,5 @@
 import { callRpc, errorMessage } from "@/lib/rpc";
-import type { AuthSession } from "@/lib/supabase";
+import { restGet, type AuthSession } from "@/lib/supabase";
 
 export type EntryState = "none" | "draft" | "submitted" | "passed";
 
@@ -68,3 +68,96 @@ export const reactToEntry = (session: AuthSession, instanceId: string, emoji: st
 // Revealed answers, newest first. Used by "Our answers" (daily) and "Our pages" (journal).
 export const listRevealedPrompts = (session: AuthSession, kind: RevealedKind, limit: number, offset = 0) =>
   callRpc<RevealedPage[]>(session, "list_revealed_prompts", { p_kind: kind, p_limit: limit, p_offset: offset });
+
+export type DailyQuestionHistoryItem = {
+  instance_id: string;
+  for_date: string;
+  prompt: string;
+  status: "revealed" | "skipped";
+  revealed_at: string | null;
+  entries: JournalEntry[];
+};
+
+export async function getDailyQuestionHistory(
+  session: AuthSession,
+  limit = 50,
+  offset = 0,
+): Promise<DailyQuestionHistoryItem[]> {
+  // 1. Try dedicated RPC if migration 20261030300 has been run
+  try {
+    const rpcResult = await callRpc<DailyQuestionHistoryItem[]>(
+      session,
+      "list_daily_question_history",
+      { p_limit: limit, p_offset: offset },
+    );
+    if (Array.isArray(rpcResult)) {
+      return rpcResult;
+    }
+  } catch {
+    // Fallback gracefully below
+  }
+
+  // 2. Fallback: query revealed via listRevealedPrompts + unrevealed via restGet
+  try {
+    const revealed = await listRevealedPrompts(session, "daily_question", limit, offset);
+    const revealedItems: DailyQuestionHistoryItem[] = (revealed ?? []).map((page) => ({
+      instance_id: page.instance_id,
+      for_date: page.for_date,
+      prompt: page.prompt,
+      status: "revealed" as const,
+      revealed_at: page.revealed_at,
+      entries: page.entries ?? [],
+    }));
+
+    const revealedIds = new Set(revealedItems.map((r) => r.instance_id));
+
+    // Get non-revealed prompt instances
+    const nowIso = new Date().toISOString().slice(0, 10);
+    const unrevealedRows = await restGet<
+      Array<{
+        id: string;
+        for_date: string;
+        copied_text: string;
+        status: string;
+        revealed_at: string | null;
+      }>
+    >(
+      `prompt_instances?kind=eq.daily_question&status=neq.revealed&order=for_date.desc&limit=${limit}`,
+      session,
+    );
+
+    const skippedItems: DailyQuestionHistoryItem[] = (unrevealedRows ?? [])
+      .filter((row) => {
+        if (revealedIds.has(row.id)) return false;
+        // If explicitly marked skipped
+        if (row.status === "skipped") return true;
+        // If open but from a past date, it expired -> skipped
+        if (row.status === "open" && row.for_date < nowIso) return true;
+        // Today's open question is still active on Today page
+        return false;
+      })
+      .map((row) => ({
+        instance_id: row.id,
+        for_date: row.for_date,
+        prompt: row.copied_text,
+        status: "skipped" as const,
+        revealed_at: null,
+        entries: [],
+      }));
+
+    const combined = [...revealedItems, ...skippedItems].sort(
+      (a, b) => new Date(b.for_date).getTime() - new Date(a.for_date).getTime(),
+    );
+    return combined;
+  } catch {
+    const revealed = await listRevealedPrompts(session, "daily_question", limit, offset);
+    return (revealed ?? []).map((page) => ({
+      instance_id: page.instance_id,
+      for_date: page.for_date,
+      prompt: page.prompt,
+      status: "revealed" as const,
+      revealed_at: page.revealed_at,
+      entries: page.entries ?? [],
+    }));
+  }
+}

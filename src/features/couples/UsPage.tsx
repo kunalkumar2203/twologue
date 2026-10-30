@@ -1,8 +1,7 @@
 import * as React from "react";
 import { useLocation } from "react-router";
-import { MessageCircleHeart } from "lucide-react";
 import TimeCapsuleSection from "@/features/capsules/TimeCapsuleSection";
-import JournalPages from "@/features/journal/JournalPages";
+import DailyAnswersHistory from "@/features/journal/DailyAnswersHistory";
 import InvitePartnerCard from "./InvitePartnerCard";
 import ChallengeHistory from "../challenges/ChallengeHistory";
 
@@ -41,19 +40,8 @@ export default function UsPage() {
 
       <hr className="border-ink-soft/10" />
 
-      <section id="answers" className="space-y-4 scroll-mt-8">
-        <div>
-          <h2 className="flex items-center gap-2 text-xl font-semibold">
-            <MessageCircleHeart className="size-5 text-accent" /> Our answers
-          </h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            Past answers to your daily questions, revealed together.
-          </p>
-        </div>
-        <JournalPages
-          kind="daily_question"
-          emptyText="Your answers gather here once you've both revealed a daily question."
-        />
+      <section id="answers" className="scroll-mt-8">
+        <DailyAnswersHistory />
       </section>
 
       <hr className="border-ink-soft/10" />
