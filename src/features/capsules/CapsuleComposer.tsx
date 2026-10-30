@@ -65,12 +65,8 @@ export function CapsuleComposer({
     !needsAnniversary &&
     !isPending;
 
-  // Earliest custom date is tomorrow in the couple's own calendar
-  const minDate = (() => {
-    const date = new Date(`${shelf.today}T12:00:00`);
-    date.setDate(date.getDate() + 1);
-    return date.toISOString().slice(0, 10);
-  })();
+  // Earliest custom date is today in the couple's own calendar
+  const minDate = shelf.today;
 
   const save = async () => {
     setError("");
