@@ -84,7 +84,12 @@ export default function StoryView({ story, partnerName }: { story: Story; partne
             )}
           >
             {paragraph.name && <p className="mb-1 text-xs font-medium text-ink-soft">{paragraph.name}</p>}
-            <p className={cn("whitespace-pre-line leading-relaxed", paragraph.opening ? "font-hand text-lg" : "text-sm")}>
+            <p
+              className={cn(
+                "whitespace-pre-line font-hand leading-relaxed text-ink",
+                paragraph.opening ? "text-lg font-semibold" : "text-base",
+              )}
+            >
               {paragraph.body}
             </p>
           </li>
@@ -101,7 +106,7 @@ export default function StoryView({ story, partnerName }: { story: Story; partne
           rows={6}
           placeholder={myTurn ? "Pick up where it left off…" : "Your draft stays private until it's your turn."}
           aria-label="Your paragraph"
-          className="rounded-2xl bg-surface p-4 text-base leading-relaxed"
+          className="rounded-2xl bg-surface p-4 text-base font-hand leading-relaxed"
         />
         <div className="flex min-h-5 items-center justify-between gap-3 text-xs text-ink-soft" aria-live="polite">
           <span>{status}</span>
