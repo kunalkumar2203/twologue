@@ -315,22 +315,3 @@ export async function restGet<T>(pathAndQuery: string, session: AuthSession): Pr
   return parseResponse<T>(response);
 }
 
-export async function restRpc<T>(name: string, args: Record<string, unknown>, session: AuthSession): Promise<T> {
-  requireConfig();
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
-    method: "POST",
-    headers: authHeaders(session.access_token),
-    body: JSON.stringify(args),
-  });
-  return parseResponse<T>(response);
-}
-
-export async function restPatch<T>(pathAndQuery: string, body: Record<string, unknown>, session: AuthSession): Promise<T> {
-  requireConfig();
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/${pathAndQuery}`, {
-    method: "PATCH",
-    headers: { ...authHeaders(session.access_token), Accept: "application/json", Prefer: "return=representation" },
-    body: JSON.stringify(body),
-  });
-  return parseResponse<T>(response);
-}

@@ -2,7 +2,6 @@ import * as React from "react";
 import { useAuth } from "@/auth/AuthProvider";
 import {
   setupMessage,
-  type CoupleFeature,
   type DepthDial,
   type FeatureKey,
   type FeatureSettings,
@@ -11,7 +10,6 @@ import {
 import { useCoupleSetup, useSaveCoupleSettings } from "./setup-hooks";
 
 export type { DepthDial, FeatureKey, FeatureSettings };
-export type FeatureSetting = CoupleFeature;
 
 // The couple's shared switches. Reads and writes go straight to the database,
 // so both partners always see the same state.
