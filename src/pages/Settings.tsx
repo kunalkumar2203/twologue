@@ -3,6 +3,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { THEMES } from "@/theme/themes";
 import { SharedFeatureSettings } from "@/features/couples/SharedFeatureSettings";
 import InvitePartnerCard from "@/features/couples/InvitePartnerCard";
+import { CoupleProfileSettings } from "@/features/couples/CoupleProfileSettings";
 
 const MODES = ["light", "dark"] as const;
 
@@ -53,6 +54,7 @@ export default function Settings() {
         })}
       </ul>
 
+      <CoupleProfileSettings />
       <SharedFeatureSettings />
     </section>
   );
