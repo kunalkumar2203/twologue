@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { BRAND } from "@/config/brand";
 import { TABS } from "./tabs";
 import { MoodBubble, useMood } from "@/features/today/MoodContext";
+import { SetupGate } from "@/features/couples/SetupGate";
 
 // Frame around every screen: top bar, the screen itself, bottom tab bar
 export default function AppLayout() {
@@ -54,6 +55,8 @@ export default function AppLayout() {
         </div>
       </header>
 
+      <SetupGate />
+      
       <main className="mx-auto flex w-full min-w-0 max-w-4xl flex-1 px-4 py-4 sm:px-6 lg:px-8">
         {pairedWelcome && (
           <p role="status" aria-live="polite" className="mb-4 rounded-xl border border-accent/30 bg-accent/10 p-3 text-sm text-ink">
