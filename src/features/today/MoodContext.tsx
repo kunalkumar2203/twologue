@@ -8,12 +8,11 @@ import {
   setMyMood,
   clearMyMood,
   type MoodEntry,
-  REMOTE_EXTENSIONS_ENABLED,
-  USE_MOCK_API,
   isMoodFresh,
   getMsUntilNextMidnight,
 } from "./api";
 import { getMyCouple } from "@/features/couples/api";
+import { useSharedFeatures } from "@/features/couples/useSharedFeatures";
 import { supabaseForSession } from "@/lib/supabase";
 
 type MoodContextValue = {
@@ -42,8 +41,8 @@ export function MoodProvider({ children }: { children: React.ReactNode }) {
 
   const [myMood, setMyMood_] = React.useState<MoodEntry | null>(null);
   const [partnerMood, setPartnerMood] = React.useState<MoodEntry | null>(null);
-  const [hasPartner, setHasPartner] = React.useState(USE_MOCK_API);
-  const [partnerName, setPartnerName] = React.useState(USE_MOCK_API ? "Alex" : "Partner");
+  const [hasPartner, setHasPartner] = React.useState(false);
+  const [partnerName, setPartnerName] = React.useState("Partner");
   const [saving, setSaving] = React.useState(false);
   const [pickerOpen, setPickerOpen] = React.useState(false);
 
@@ -120,7 +119,7 @@ export function MoodProvider({ children }: { children: React.ReactNode }) {
 
   // Realtime subscription for mood updates
   React.useEffect(() => {
-    if (!session || !REMOTE_EXTENSIONS_ENABLED) return;
+    if (!session) return;
     const authSession = session;
     let cancelled = false;
     let channel: ReturnType<ReturnType<typeof supabaseForSession>["channel"]> | undefined;
@@ -230,6 +229,7 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
   const [selected, setSelected] = React.useState<{ icon: string; label: string } | null>(null);
   const [note, setNote] = React.useState("");
   const ref = React.useRef<HTMLDivElement>(null);
+  const { isEnabled } = useSharedFeatures();
 
   const isOwn = side === "left";
   const partnerName = propPartnerName ?? ctxPartnerName ?? "Partner";
@@ -296,6 +296,8 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
       // Handled in clearMood
     }
   }
+
+  if (!isEnabled("mood")) return null;
 
   return (
     <div ref={ref} className="relative group flex items-center">
