@@ -82,6 +82,44 @@ export type Database = {
       save_story_draft: { Args: { p_story_id: string; p_body: string }; Returns: null };
       submit_story_paragraph: { Args: { p_story_id: string; p_body: string }; Returns: null };
       finish_story: { Args: { p_story_id: string }; Returns: null };
+      get_couple_setup: { Args: Record<string, never>; Returns: Record<string, unknown> | null };
+      save_couple_settings: {
+        Args: { p_settings: Record<string, unknown>; p_complete: boolean };
+        Returns: null;
+      };
+      list_revealed_prompts: {
+        Args: { p_kind: string; p_limit: number; p_offset: number };
+        Returns: Record<string, unknown>[];
+      };
+      get_today_state: { Args: Record<string, never>; Returns: Record<string, unknown> };
+      submit_daily_answer: { Args: { p_session_id: string; p_answer: string }; Returns: null };
+      request_daily_reveal: { Args: { p_session_id: string }; Returns: boolean };
+      swap_daily_question: { Args: { p_session_id: string }; Returns: null };
+      set_my_mood: {
+        Args: { p_icon: string; p_label: string; p_note: string; p_private: boolean };
+        Returns: null;
+      };
+      clear_my_mood: { Args: Record<string, never>; Returns: null };
+      get_appreciation_notes: {
+        Args: { p_scope: string };
+        Returns: Record<string, unknown>[];
+      };
+      send_appreciation_note: {
+        Args: { p_template: string; p_body: string; p_emoji: string | null; p_photo_path: string | null };
+        Returns: null;
+      };
+      mark_appreciation_note_read: { Args: { p_note_id: string }; Returns: null };
+      get_daily_challenge: { Args: Record<string, never>; Returns: Record<string, unknown> | null };
+      get_challenge_status: {
+        Args: Record<string, never>;
+        Returns: { done: boolean; skipped: boolean; note: string };
+      };
+      complete_daily_challenge: { Args: { p_note: string }; Returns: null };
+      skip_daily_challenge: { Args: Record<string, never>; Returns: null };
+      get_challenge_history: {
+        Args: { p_limit: number; p_offset: number };
+        Returns: Record<string, unknown>[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
