@@ -49,7 +49,9 @@ export default function JournalPage() {
 
       {active === "write" && <WriteTogether />}
       {active === "stories" && <StoriesPanel />}
-      {active === "pages" && <JournalPages />}
+      {active === "pages" && (
+        <JournalPages kind="journal" emptyText="Your shared pages will gather here." />
+      )}
     </section>
   );
 }

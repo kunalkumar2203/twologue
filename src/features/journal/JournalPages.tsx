@@ -1,17 +1,17 @@
 import * as React from "react";
 import { Notice } from "@/components/inline-prompts";
 import { Button } from "@/components/ui/button";
-import { DICTIONARY } from "@/content/dictionary";
 import { formatDay } from "@/lib/format";
-import { journalMessage } from "./api";
+import { journalMessage, type RevealedKind } from "./api";
 import { EntryPair } from "./EntryPair";
-import { useJournalPages } from "./hooks";
+import { useRevealedPrompts } from "./hooks";
 
 const PAGE_SIZE = 10;
 
-export default function JournalPages() {
+// A list of revealed prompts, newest first. Used for both "Our answers" and "Our pages".
+export default function JournalPages({ kind, emptyText }: { kind: RevealedKind; emptyText: string }) {
   const [limit, setLimit] = React.useState(PAGE_SIZE);
-  const pages = useJournalPages(limit);
+  const pages = useRevealedPrompts(kind, limit);
 
   if (pages.isLoading) return <p className="text-sm text-ink-soft">Gathering your pages…</p>;
   if (pages.isError) {
@@ -23,7 +23,7 @@ export default function JournalPages() {
   }
 
   const list = pages.data ?? [];
-  if (list.length === 0) return <Notice text={DICTIONARY.voice.journal.empty} />;
+  if (list.length === 0) return <Notice text={emptyText} />;
 
   return (
     <div className="space-y-8">
