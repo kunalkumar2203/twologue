@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Check,
   ChevronDown,
+  ChevronRight,
   Clock,
   Compass,
   Eye,
@@ -207,12 +208,10 @@ export default function TodayPage() {
   async function doSendNote(template: string, body: string, emoji?: string) {
     try {
       await sendAppreciationNote(sessionRef.current, { template, body, emoji });
-      // Refresh sent list so the history section in the compose panel updates
-      const sent = await getSentNotes(sessionRef.current);
-      setSentNotes(sent);
+      setSentNotes(await getSentNotes(sessionRef.current));
       setNotice("Your note is on its way 💌");
-    } catch {
-      // silent
+    } catch (err) {
+      setError(errorText(err, "Couldn't send your note. Please try again."));
     }
   }
 
@@ -222,8 +221,8 @@ export default function TodayPage() {
       setChallengeStatus({ done: true, skipped: false, note });
       setShowChallengeComplete(false);
       setNotice("Challenge complete! 🎉");
-    } catch {
-      // silent
+    } catch (err) {
+      setError(errorText(err, "Couldn't save today's challenge. Please try again."));
     }
   }
 
@@ -232,8 +231,8 @@ export default function TodayPage() {
       await skipChallenge(sessionRef.current);
       setChallengeStatus({ done: false, skipped: true, note: "" });
       setNotice("No problem. There is no penalty for skipping today.");
-    } catch {
-      setError("Couldn't skip today's challenge.");
+    } catch (err) {
+      setError(errorText(err, "Couldn't skip today's challenge."));
     }
   }
 
@@ -274,7 +273,6 @@ export default function TodayPage() {
 
   return (
     <section className="w-full max-w-3xl space-y-4">
-      <InvitePartnerCard />
       {/* Header */}
       <div className="flex items-end justify-between gap-4">
         <div>
@@ -430,6 +428,15 @@ export default function TodayPage() {
               onReact={doReact}
               busy={busy}
             />
+            {/* View previous answers in Us */}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink-soft/15 bg-page/70 px-4 py-3 text-xs text-ink-soft">
+              <span>Previous answers can be viewed anytime under <strong className="font-semibold text-ink">Us</strong>.</span>
+              <Button asChild variant="outline" size="sm" className="rounded-full text-xs h-7 px-3 bg-surface hover:bg-page">
+                <Link to="/app/us#answers" className="inline-flex items-center gap-1">
+                  View History <ChevronRight className="size-3" />
+                </Link>
+              </Button>
+            </div>
           </>
         ) : (
           <>
@@ -1011,6 +1018,16 @@ function ChallengeCard({
               “{status.note}”
             </div>
           )}
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3.5 border-t border-accent/15 text-xs text-ink-soft">
+            <span className="leading-relaxed">
+              Previous challenges can be viewed anytime under <strong className="font-semibold text-ink">Us</strong>.
+            </span>
+            <Button asChild variant="outline" size="sm" className="rounded-full text-xs h-7 px-3 bg-surface/90 hover:bg-surface">
+              <Link to="/app/us#challenges" className="inline-flex items-center gap-1">
+                View History <ChevronRight className="size-3" />
+              </Link>
+            </Button>
+          </div>
         </div>
       ) : status.skipped ? (
         <div className="mt-4 rounded-2xl border border-ink-soft/15 bg-page/70 p-4 transition-all">
