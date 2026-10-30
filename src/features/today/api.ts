@@ -1,14 +1,8 @@
-import { getMyCouple } from "@/features/couples/api";
-import { restGet, restRpc, type AuthSession } from "@/lib/supabase";
+import { getCoupleSetup } from "@/features/couples/setup-api";
+import { callRpc } from "@/lib/rpc";
+import { restGet, type AuthSession } from "@/lib/supabase";
 
-// Dev only: to run Today on fake data for demo; does not need Supabase connectivity.
-// Turn it on with VITE_USE_MOCK_API=true in .env.local. Production builds ignore it.
-export const USE_MOCK_API = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_API === "true";
-
-// Extended features (mood, appreciation notes, daily challenges) use persistent local storage
-// unless VITE_USE_REMOTE_EXTENSIONS=true is set after applying database migrations.
-export const USE_REMOTE_EXTENSIONS = import.meta.env.VITE_USE_REMOTE_EXTENSIONS === "true";
-export const REMOTE_EXTENSIONS_ENABLED = USE_REMOTE_EXTENSIONS;
+// Every read and write goes to the database. The offline mock was removed, so a failure is shown, never faked.
 
 export type DepthDial = "light" | "mixed" | "deep";
 
@@ -154,13 +148,17 @@ export const NOTE_TEMPLATES = [
 ];
 
 // Micro daily challenges
+export type ChallengeCategory = "affection" | "words" | "play" | "reflection" | "service";
+
 export type DailyChallenge = {
   id: string;
   title: string;
   body: string;
-  category: "affection" | "words" | "play" | "reflection" | "service";
+  category: ChallengeCategory;
   remote_variant: string;
   duration_label: string;
+  is_remote?: boolean;
+  long_distance?: boolean;
 };
 
 export type ChallengeHistoryItem = {
@@ -168,7 +166,7 @@ export type ChallengeHistoryItem = {
   shown_on: string;
   action: "shown" | "saved" | "skipped";
   body: string;
-  category: "affection" | "words" | "play" | "reflection" | "service";
+  category: ChallengeCategory;
   duration_label: string;
   note: string;
   updated_at: string;
@@ -179,38 +177,29 @@ function requireSession(session: AuthSession | null) {
   return session;
 }
 
-// ─── Daily Question ─────────────────────────────────────────────────────────
+// ─── Daily question ─────────────────────────────────────────────────────────
 
 export async function getTodayScreen(session: AuthSession | null): Promise<TodayScreen> {
-  if (USE_MOCK_API) return (await import("./mock")).mockGetScreen();
-
   const auth = requireSession(session);
-  const couple = await getMyCouple(auth);
-  if (!couple.couple || !couple.partner) return { kind: "no-couple" };
-
-  const flags = await restGet<{ enabled: boolean }[]>(
-    `couple_features?select=enabled&couple_id=eq.${encodeURIComponent(couple.couple.id)}&feature_key=eq.daily_question`,
-    auth,
-  );
-  if (flags[0]?.enabled === false) return { kind: "paused" };
-
-  return { kind: "ready", state: await restRpc<TodayState>("get_today_state", {}, auth) };
+  const setup = await getCoupleSetup(auth);
+  if (!setup?.partner) return { kind: "no-couple" };
+  if (setup.features.find((item) => item.key === "daily_question")?.enabled === false) {
+    return { kind: "paused" };
+  }
+  return { kind: "ready", state: await callRpc<TodayState>(auth, "get_today_state") };
 }
 
 export async function submitDailyAnswer(session: AuthSession | null, sessionId: string, answer: string) {
-  if (USE_MOCK_API) return (await import("./mock")).mockSubmitAnswer(answer);
-  await restRpc<null>("submit_daily_answer", { p_session_id: sessionId, p_answer: answer }, requireSession(session));
+  await callRpc<void>(requireSession(session), "submit_daily_answer", { p_session_id: sessionId, p_answer: answer });
 }
 
 // True when this request completed the reveal for both partners
-export async function requestDailyReveal(session: AuthSession | null, sessionId: string) {
-  if (USE_MOCK_API) return (await import("./mock")).mockRequestReveal();
-  return restRpc<boolean>("request_daily_reveal", { p_session_id: sessionId }, requireSession(session));
+export function requestDailyReveal(session: AuthSession | null, sessionId: string) {
+  return callRpc<boolean>(requireSession(session), "request_daily_reveal", { p_session_id: sessionId });
 }
 
 export async function swapDailyQuestion(session: AuthSession | null, sessionId: string) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockSwapQuestion();
-  await restRpc<null>("swap_daily_question", { p_session_id: sessionId }, requireSession(session));
+  await callRpc<void>(requireSession(session), "swap_daily_question", { p_session_id: sessionId });
 }
 
 export async function submitRevealReaction(
@@ -219,161 +208,87 @@ export async function submitRevealReaction(
   reaction: string,
   reply?: string,
 ) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockSubmitReaction(reaction, reply);
-  await restRpc<null>(
-    "submit_reveal_reaction",
-    { p_session_id: sessionId, p_reaction: reaction, p_reply: reply || null },
-    requireSession(session),
-  );
+  await callRpc<void>(requireSession(session), "submit_reveal_reaction", {
+    p_session_id: sessionId,
+    p_reaction: reaction,
+    p_reply: reply || null,
+  });
 }
 
-// ─── Mood / Emotional Weather ────────────────────────────────────────────────
+// ─── Mood / emotional weather ───────────────────────────────────────────────
 
 export async function getMyMood(session: AuthSession | null): Promise<MoodEntry | null> {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetMyMood();
-  try {
-    const auth = requireSession(session);
-    const rows = await restGet<MoodEntry[]>(
-      `daily_moods?select=*&user_id=eq.${encodeURIComponent(auth.user.id)}&order=updated_at.desc&limit=1`,
-      auth,
-    );
-    const entry = rows[0] ?? null;
-    return isMoodFresh(entry) ? entry : null;
-  } catch {
-    return (await import("./mock")).mockGetMyMood();
-  }
+  const auth = requireSession(session);
+  const rows = await restGet<MoodEntry[]>(
+    `daily_moods?select=*&user_id=eq.${encodeURIComponent(auth.user.id)}&order=updated_at.desc&limit=1`,
+    auth,
+  );
+  const entry = rows[0] ?? null;
+  return isMoodFresh(entry) ? entry : null;
 }
 
 export async function getPartnerMood(session: AuthSession | null): Promise<MoodEntry | null> {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetPartnerMood();
-  try {
-    const auth = requireSession(session);
-    const rows = await restGet<MoodEntry[]>(`partner_mood?select=*&limit=1`, auth);
-    const entry = rows[0] ?? null;
-    return isMoodFresh(entry) ? entry : null;
-  } catch {
-    return (await import("./mock")).mockGetPartnerMood();
-  }
+  const auth = requireSession(session);
+  const rows = await restGet<MoodEntry[]>("partner_mood?select=*&limit=1", auth);
+  const entry = rows[0] ?? null;
+  return isMoodFresh(entry) ? entry : null;
 }
 
-export async function setMyMood(
-  session: AuthSession | null,
-  entry: Omit<MoodEntry, "id" | "created_at">,
-) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockSetMood(entry);
-  try {
-    await restRpc<null>("set_my_mood", { p_icon: entry.icon, p_label: entry.label, p_note: entry.note, p_private: entry.private }, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockSetMood(entry);
-  }
+export async function setMyMood(session: AuthSession | null, entry: Omit<MoodEntry, "id" | "created_at">) {
+  await callRpc<void>(requireSession(session), "set_my_mood", {
+    p_icon: entry.icon,
+    p_label: entry.label,
+    p_note: entry.note,
+    p_private: entry.private,
+  });
 }
 
 export async function clearMyMood(session: AuthSession | null) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockClearMood();
-  try {
-    await restRpc<null>("clear_my_mood", {}, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockClearMood();
-  }
+  await callRpc<void>(requireSession(session), "clear_my_mood");
 }
 
-// ─── Appreciation Notes ──────────────────────────────────────────────────────
+// ─── Appreciation notes ─────────────────────────────────────────────────────
 
-export async function getReceivedNotes(session: AuthSession | null): Promise<AppreciationNote[]> {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetReceivedNotes();
-  try {
-    return await restRpc<AppreciationNote[]>("get_appreciation_notes", { p_scope: "received" }, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockGetReceivedNotes();
-  }
-}
+export const getReceivedNotes = (session: AuthSession | null) =>
+  callRpc<AppreciationNote[]>(requireSession(session), "get_appreciation_notes", { p_scope: "received" });
 
-export async function getSentNotes(session: AuthSession | null): Promise<AppreciationNote[]> {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetSentNotes();
-  try {
-    return await restRpc<AppreciationNote[]>("get_appreciation_notes", { p_scope: "sent" }, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockGetSentNotes();
-  }
-}
+export const getSentNotes = (session: AuthSession | null) =>
+  callRpc<AppreciationNote[]>(requireSession(session), "get_appreciation_notes", { p_scope: "sent" });
 
 export async function sendAppreciationNote(
   session: AuthSession | null,
   note: { template: string; body: string; emoji?: string },
 ) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockSendNote(note);
-  try {
-    await restRpc<null>("send_appreciation_note", {
-      p_template: note.template,
-      p_body: note.body,
-      p_emoji: note.emoji ?? null,
-      p_photo_path: null,
-    }, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockSendNote(note);
-  }
+  await callRpc<void>(requireSession(session), "send_appreciation_note", {
+    p_template: note.template,
+    p_body: note.body,
+    p_emoji: note.emoji ?? null,
+    p_photo_path: null,
+  });
 }
 
 export async function markNoteRead(session: AuthSession | null, noteId: string) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockMarkNoteRead(noteId);
-  try {
-    await restRpc<null>("mark_appreciation_note_read", { p_note_id: noteId }, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockMarkNoteRead(noteId);
-  }
+  await callRpc<void>(requireSession(session), "mark_appreciation_note_read", { p_note_id: noteId });
 }
 
-// ─── Micro Daily Challenge ───────────────────────────────────────────────────
+// ─── Micro daily challenge ──────────────────────────────────────────────────
 
-export async function getDailyChallenge(session: AuthSession | null): Promise<DailyChallenge | null> {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetChallenge();
-  try {
-    return await restRpc<DailyChallenge | null>("get_daily_challenge", {}, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockGetChallenge();
-  }
-}
+export const getDailyChallenge = (session: AuthSession | null) =>
+  callRpc<DailyChallenge | null>(requireSession(session), "get_daily_challenge");
 
-export async function getChallengeStatus(session: AuthSession | null): Promise<{ done: boolean; skipped: boolean; note: string }> {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetChallengeStatus();
-  try {
-    return await restRpc<{ done: boolean; skipped: boolean; note: string }>("get_challenge_status", {}, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockGetChallengeStatus();
-  }
-}
+export const getChallengeStatus = (session: AuthSession | null) =>
+  callRpc<{ done: boolean; skipped: boolean; note: string }>(requireSession(session), "get_challenge_status");
 
 export async function completeChallenge(session: AuthSession | null, note: string) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockCompleteChallenge(note);
-  try {
-    await restRpc<null>("complete_daily_challenge", { p_note: note }, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockCompleteChallenge(note);
-  }
+  await callRpc<void>(requireSession(session), "complete_daily_challenge", { p_note: note });
 }
 
 export async function skipChallenge(session: AuthSession | null) {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockSkipChallenge();
-  try {
-    await restRpc<null>("skip_daily_challenge", {}, requireSession(session));
-  } catch {
-    return (await import("./mock")).mockSkipChallenge();
-  }
+  await callRpc<void>(requireSession(session), "skip_daily_challenge");
 }
 
-export async function getChallengeHistory(
-  session: AuthSession | null,
-  limit = 20,
-  offset = 0,
-): Promise<ChallengeHistoryItem[]> {
-  if (!USE_REMOTE_EXTENSIONS || USE_MOCK_API) return (await import("./mock")).mockGetChallengeHistory(limit, offset);
-  try {
-    return await restRpc<ChallengeHistoryItem[]>(
-      "get_challenge_history",
-      { p_limit: limit, p_offset: offset },
-      requireSession(session),
-    );
-  } catch {
-    return (await import("./mock")).mockGetChallengeHistory(limit, offset);
-  }
-}
+export const getChallengeHistory = (session: AuthSession | null, limit = 20, offset = 0) =>
+  callRpc<ChallengeHistoryItem[]>(requireSession(session), "get_challenge_history", {
+    p_limit: limit,
+    p_offset: offset,
+  });
