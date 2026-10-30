@@ -1,16 +1,25 @@
 import { useEffect, useState, useTransition } from "react";
-import { Check, Sparkles, Zap } from "lucide-react";
+import { Check, Compass, Gift, Heart, MessageSquare, Sparkles, Timer, Zap } from "lucide-react";
 import { getChallengeHistory, type ChallengeHistoryItem } from "@/features/today/api";
 import { useAuth } from "@/auth/AuthProvider";
 import { formatHistoryDateDetails } from "@/lib/format";
 
-const categoryStyles: Record<string, { label: string; badge: string }> = {
-  affection: { label: "Affection", badge: "text-pink-600 bg-pink-500/10 border-pink-500/20" },
-  words: { label: "Words", badge: "text-blue-600 bg-blue-500/10 border-blue-500/20" },
-  play: { label: "Play", badge: "text-amber-600 bg-amber-500/10 border-amber-500/20" },
-  reflection: { label: "Reflection", badge: "text-purple-600 bg-purple-500/10 border-purple-500/20" },
-  service: { label: "Service", badge: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20" },
-};
+function CategoryIcon({ category }: { category: string }) {
+  switch (category) {
+    case "affection":
+      return <Heart className="size-3 text-accent" />;
+    case "words":
+      return <MessageSquare className="size-3 text-accent" />;
+    case "play":
+      return <Sparkles className="size-3 text-accent" />;
+    case "reflection":
+      return <Compass className="size-3 text-accent" />;
+    case "service":
+      return <Gift className="size-3 text-accent" />;
+    default:
+      return <Sparkles className="size-3 text-accent" />;
+  }
+}
 
 type HistoryFilter = "done" | "skipped";
 
@@ -123,10 +132,6 @@ export default function ChallengeHistory() {
           {filtered.map((item) => {
             const isDone = item.action === "saved";
             const dateDetails = formatHistoryDateDetails(item.shown_on);
-            const categoryMeta = categoryStyles[item.category] ?? {
-              label: item.category,
-              badge: "text-ink-soft bg-ink-soft/10 border-ink-soft/20",
-            };
 
             return (
               <div
@@ -140,8 +145,8 @@ export default function ChallengeHistory() {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     {isDone && (
-                      <span className="flex size-5 items-center justify-center rounded-full text-xs bg-emerald-500/15 text-emerald-600 font-bold">
-                        <Check className="size-3" />
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent shadow-2xs">
+                        <Check className="size-3 stroke-[2.5]" />
                       </span>
                     )}
                     <div className="flex items-center gap-1.5 text-xs">
@@ -155,15 +160,18 @@ export default function ChallengeHistory() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold capitalize ${categoryMeta.badge}`}
-                    >
-                      {categoryMeta.label}
-                    </span>
-                    <span className="rounded-full border border-ink-soft/20 px-2 py-0.5 text-[10px] text-ink-soft">
-                      {item.duration_label}
-                    </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Category Chip (matches Today page styling) */}
+                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-ink-soft/20 bg-page/80 px-2.5 py-1 text-xs font-medium capitalize text-ink shadow-2xs">
+                      <CategoryIcon category={item.category} />
+                      <span>{item.category}</span>
+                    </div>
+
+                    {/* Duration Chip (matches Today page styling) */}
+                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-ink-soft/20 bg-page/80 px-2.5 py-1 text-xs font-medium text-ink shadow-2xs">
+                      <Timer className="size-3 text-accent" />
+                      <span>{item.duration_label}</span>
+                    </div>
                   </div>
                 </div>
 

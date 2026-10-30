@@ -102,8 +102,8 @@ export default function DailyAnswersHistory() {
             return (
               <article key={page.instance_id} className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <span className="flex size-5 items-center justify-center rounded-full text-xs bg-emerald-500/15 text-emerald-600 font-bold">
-                    <Check className="size-3" />
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent shadow-2xs">
+                    <Check className="size-3 stroke-[2.5]" />
                   </span>
                   <div className="flex items-center gap-1.5 text-xs">
                     {dateDetails.relative && (
@@ -154,7 +154,7 @@ export default function DailyAnswersHistory() {
                     <span className="text-[11px] font-medium text-ink-soft">{dateDetails.fullDate}</span>
                   </div>
 
-                  <span className="rounded-full border border-ink-soft/20 px-2 py-0.5 text-[10px] text-ink-soft">
+                  <span className="inline-flex items-center rounded-lg border border-ink-soft/20 bg-page/80 px-2 py-0.5 text-xs font-medium text-ink-soft shadow-2xs">
                     Skipped
                   </span>
                 </div>
