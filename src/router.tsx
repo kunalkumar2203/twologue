@@ -1,4 +1,3 @@
-import type { ComponentType, ReactNode } from "react";
 import { createBrowserRouter, useParams } from "react-router";
 import AppLayout from "./app/AppLayout";
 import { TABS } from "./app/tabs";
@@ -10,13 +9,11 @@ import Profile from "./pages/Profile";
 import TodayPage from "./features/today/TodayPage";
 import JournalPage from "./features/journal/JournalPage";
 import UsPage from "./features/couples/UsPage";
-import { USE_MOCK_API } from "./features/today/api";
 import { MoodProvider } from "./features/today/MoodContext";
 import LandingPage from "./pages/LandingPage";
 import JoinInvitePage from "./features/couples/JoinInvitePage";
 
-const SkipGate = ({ children }: { children: ReactNode }) => <>{children}</>;
-const Gate: ComponentType<{ children: ReactNode }> = USE_MOCK_API ? SkipGate : RequireAuth;
+const Gate = RequireAuth;
 
 function JoinRoute() {
   const { code = "" } = useParams();
