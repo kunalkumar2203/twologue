@@ -8,6 +8,7 @@ import {
   signUpWithPassword as requestSignUp,
   storeSession,
   supabaseConfigured,
+  SupabaseRequestError,
   type AuthSession,
   type AuthUser,
   type SignupProfile,
@@ -75,6 +76,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               const refreshed = await refreshAuthSession(saved);
               if (!refreshed) throw new Error("Your session expired. Please sign in again.");
               valid = refreshed;
+            } else {
+              try {
+                const activeUser = await fetchAuthUser(saved.access_token);
+                valid = { ...saved, user: activeUser };
+              } catch (err) {
+                if (err instanceof SupabaseRequestError && (err.status === 401 || err.status === 403 || err.status === 404 || err.status === 400)) {
+                  throw err;
+                }
+              }
             }
             if (active) commitSession(valid);
           }
