@@ -19,6 +19,7 @@ export type Story = {
   paragraph_count: number;
   turn: "me" | "partner" | null;
   turn_due_at: string | null;
+  turn_extended?: boolean;
   started_at: string;
   finished_at: string | null;
   my_draft: string | null;
@@ -44,6 +45,7 @@ const STORY_MESSAGES: Record<string, string> = {
   story_in_progress: "You already have a story in progress. Finish it first.",
   partner_needed: "Invite your partner before starting a story together.",
   invalid_kind: "Pick fiction or our future to begin.",
+  turn_already_extended: "This turn has already been extended by 3 days.",
 };
 
 export const storyMessage = (error: unknown) => errorMessage(error, STORY_MESSAGES);
@@ -76,3 +78,10 @@ export const submitStoryParagraph = (session: AuthSession, storyId: string, body
 
 export const finishStory = (session: AuthSession, storyId: string) =>
   callRpc<void>(session, "finish_story", { p_story_id: storyId });
+
+export const extendStoryTurn = (session: AuthSession, storyId: string) =>
+  callRpc<void>(session, "extend_story_turn", { p_story_id: storyId });
+
+export const surrenderStoryTurn = (session: AuthSession, storyId: string) =>
+  callRpc<void>(session, "surrender_story_turn", { p_story_id: storyId });
+

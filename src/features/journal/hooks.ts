@@ -100,3 +100,15 @@ export const useFinishStory = () =>
     (session, args) => stories.finishStory(session, args.storyId),
     [STORIES_KEY],
   );
+
+export const useExtendStoryTurn = () =>
+  useSessionMutation<{ storyId: string }, void>(
+    (session, args) => stories.extendStoryTurn(session, args.storyId),
+    [STORIES_KEY],
+  );
+
+export const useSurrenderStoryTurn = () =>
+  useSessionMutation<{ storyId: string }, void>(
+    (session, args) => stories.surrenderStoryTurn(session, args.storyId),
+    [STORIES_KEY],
+  );

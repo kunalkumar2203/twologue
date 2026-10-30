@@ -5,11 +5,16 @@ export function kindLabel(kind: Story["kind"]) {
   return kind === "our_future" ? "Our future" : "Fiction";
 }
 
+export function isTurnExpired(dueISO: string | null, now = Date.now()) {
+  if (!dueISO) return false;
+  return new Date(dueISO).getTime() <= now;
+}
+
 // Soft, never punishing: there is no auto-skip when a turn runs late
 export function timeLeft(dueISO: string | null, now = Date.now()) {
   if (!dueISO) return null;
   const ms = new Date(dueISO).getTime() - now;
-  if (ms <= 0) return "No rush. Take all the time you need.";
+  if (ms <= 0) return "Turn time has passed";
   const hours = Math.round(ms / 3_600_000);
   if (hours < 1) return "Less than an hour left";
   if (hours < 24) return `About ${hours} ${hours === 1 ? "hour" : "hours"} left`;

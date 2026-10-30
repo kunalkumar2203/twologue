@@ -82,6 +82,8 @@ export type Database = {
       save_story_draft: { Args: { p_story_id: string; p_body: string }; Returns: null };
       submit_story_paragraph: { Args: { p_story_id: string; p_body: string }; Returns: null };
       finish_story: { Args: { p_story_id: string }; Returns: null };
+      extend_story_turn: { Args: { p_story_id: string }; Returns: null };
+      surrender_story_turn: { Args: { p_story_id: string }; Returns: null };
       get_couple_setup: { Args: Record<string, never>; Returns: Record<string, unknown> | null };
       save_couple_settings: {
         Args: { p_settings: Record<string, unknown>; p_complete: boolean };
