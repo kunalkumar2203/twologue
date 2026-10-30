@@ -221,7 +221,7 @@ function FeaturesStep({ setup, draft, update }: { setup: CoupleSetup; draft: Dra
             <div className="min-w-0">
               <p className="text-sm font-semibold">{item.label}</p>
               <p className="mt-0.5 text-xs leading-5 text-ink-soft">{item.detail}</p>
-              {pausedByPartner && <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">Paused by {partnerName}. Only they can switch it on.</p>}
+              {pausedByPartner && <p className="mt-1 text-xs font-medium text-accent">Paused by {partnerName}. Only they can switch it on.</p>}
             </div>
             <Switch
               checked={on}

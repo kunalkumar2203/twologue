@@ -390,7 +390,7 @@ export default function TodayPage() {
             {/* Reading/Connection Time: crisp, subtle, theme-aligned chip */}
             <div className="inline-flex items-center gap-1.5 rounded-lg border border-ink-soft/20 bg-page/80 px-2.5 py-1 text-xs font-medium text-ink shadow-2xs">
               <Clock className="size-3 text-accent" />
-              <span>2–5 mins</span>
+              <span>2 - 5 mins</span>
             </div>
           </div>
         </div>
@@ -917,8 +917,12 @@ function ReactionRow({
 function StatusLine({ done, label }: { done: boolean; label: string }) {
   return (
     <p className="flex items-center gap-2">
-      <span className={`flex size-5 items-center justify-center rounded-full border ${done ? "border-accent bg-accent text-on-accent" : "border-ink-soft/30"}`}>
-        {done && <Check className="size-3" />}
+      <span
+        className={`flex size-5 shrink-0 items-center justify-center rounded-full border ${
+          done ? "border-accent bg-accent text-on-accent shadow-2xs" : "border-ink-soft/30"
+        }`}
+      >
+        {done && <Check className="size-3 stroke-[2.5]" />}
       </span>
       {label}
     </p>
