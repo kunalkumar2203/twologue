@@ -37,7 +37,7 @@ export default function Settings() {
                 <Button asChild className="mt-4 rounded-full bg-accent text-on-accent hover:bg-accent/90 min-h-10 px-5">
                   <Link to="/app" className="inline-flex items-center gap-2 font-medium">
                     <UserPlus className="size-4" />
-                    <span>{hasPendingInvite ? "View invitation link" : "Create invitation"}</span>
+                    <span>{hasPendingInvite ? "Create invitation link" : "Create invitation"}</span>
                     <ArrowRight className="size-4 ml-0.5 opacity-70" />
                   </Link>
                 </Button>

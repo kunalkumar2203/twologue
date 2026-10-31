@@ -92,7 +92,7 @@ export default function UnconnectedSectionCard({
           <Button asChild className="rounded-full bg-accent text-on-accent hover:bg-accent/90 shadow-2xs h-9.5 sm:h-10 px-6 text-sm font-medium">
             <Link to="/app" className="inline-flex items-center gap-2">
               <UserPlus className="size-4" />
-              <span>{hasPendingInvite ? "View invitation link" : "Create invitation"}</span>
+              <span>{hasPendingInvite ? "Create invitation link" : "Create invitation"}</span>
               <ArrowRight className="size-3.5 opacity-70" />
             </Link>
           </Button>
