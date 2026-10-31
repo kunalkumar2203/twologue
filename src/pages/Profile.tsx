@@ -6,11 +6,13 @@ import { zoneLabel } from "@/config/time-zones";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatDay } from "@/lib/format";
 import { restGet } from "@/lib/supabase";
+import { useCoupleStatus } from "@/features/couples/hooks";
 
 type ProfileRow = { display_name: string | null; time_zone: string | null; created_at: string };
 
 export default function Profile() {
   const { user, session, signOut } = useAuth();
+  const { isPaired } = useCoupleStatus();
   const navigate = useNavigate();
 
   const profile = useQuery({
@@ -39,14 +41,9 @@ export default function Profile() {
 
   return (
     <section className="w-full max-w-3xl">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-ink-soft">Your account</p>
-          <h1 className="mt-1 text-3xl font-semibold">Profile</h1>
-        </div>
-        <Link to="/app/settings" aria-label="Settings" className="rounded-full p-2 text-ink-soft hover:bg-surface hover:text-ink">
-          <Settings className="size-5" />
-        </Link>
+      <div>
+        <p className="text-sm font-medium text-ink-soft">Your account</p>
+        <h1 className="mt-1 text-3xl font-semibold">Profile</h1>
       </div>
 
       <div className="mt-8 flex items-center gap-4 rounded-3xl border border-ink-soft/20 bg-surface p-5 sm:p-6">
@@ -84,7 +81,9 @@ export default function Profile() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block font-medium">Settings</span>
-            <span className="mt-0.5 block text-sm text-ink-soft">Our shared setup, switches and appearance</span>
+            <span className="mt-0.5 block text-sm text-ink-soft">
+              {isPaired ? "Our shared setup, switches and appearance" : "Appearance, themes and invitation"}
+            </span>
           </span>
           <ChevronRight className="size-5 shrink-0 text-ink-soft" />
         </Link>
