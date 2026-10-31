@@ -218,6 +218,7 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
   const {
     myMood,
     partnerMood,
+    hasPartner,
     partnerName: ctxPartnerName,
     saving,
     saveMood,
@@ -367,7 +368,7 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold text-ink">Your weather: {mood.label}</p>
                       <p className="truncate text-[11px] text-ink-soft">
-                        {mood.note ? `"${mood.note}"` : `Shared with ${partnerName}`}
+                        {mood.note ? `"${mood.note}"` : hasPartner ? `Shared with ${partnerName}` : "Your daily weather"}
                       </p>
                     </div>
                   </div>
@@ -384,7 +385,9 @@ export function MoodBubble({ side, partnerName: propPartnerName }: { side: "left
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold text-ink">Set your mood for today</p>
                       <p className="mt-0.5 text-[11px] leading-relaxed text-ink-soft">
-                        Share your atmosphere with {partnerName}. Tap to choose your weather.
+                        {hasPartner
+                          ? `Share your atmosphere with ${partnerName}. Tap to choose your weather.`
+                          : "Set your emotional weather for today. It will be shared once your partner joins."}
                       </p>
                     </div>
                   </div>

@@ -6,6 +6,9 @@ import { cancelInvite, createInvite, getMyCouple, unlinkCouple } from "./api";
 
 export const coupleQueryKey = ["couple"] as const;
 
+let activeWaitingChannel: ReturnType<ReturnType<typeof supabaseForSession>["channel"]> | null = null;
+let waitingSubscribers = 0;
+
 export function useCouple() {
   const { session } = useAuth();
   const queryClient = useQueryClient();
@@ -18,16 +21,32 @@ export function useCouple() {
 
   React.useEffect(() => {
     if (!session || !query.data?.pendingInvite || query.data.partner) return;
-    const channel = supabaseForSession(session)
-      .channel(`couple-waiting-${session.user.id}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "couples", filter: `partner_1_id=eq.${session.user.id}` },
-        () => void queryClient.invalidateQueries({ queryKey: coupleQueryKey }),
-      )
-      .subscribe();
+    const client = supabaseForSession(session);
+    const channelName = `couple-waiting-${session.user.id}`;
+
+    waitingSubscribers += 1;
+    if (!activeWaitingChannel) {
+      const existing = client.getChannels().find((c) => c.topic === `realtime:${channelName}`);
+      if (existing) {
+        void client.removeChannel(existing);
+      }
+      activeWaitingChannel = client
+        .channel(channelName)
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "couples", filter: `partner_1_id=eq.${session.user.id}` },
+          () => void queryClient.invalidateQueries({ queryKey: coupleQueryKey }),
+        )
+        .subscribe();
+    }
+
     return () => {
-      void channel.unsubscribe();
+      waitingSubscribers = Math.max(0, waitingSubscribers - 1);
+      if (waitingSubscribers === 0 && activeWaitingChannel) {
+        const toRemove = activeWaitingChannel;
+        activeWaitingChannel = null;
+        void client.removeChannel(toRemove);
+      }
     };
   }, [query.data?.partner, query.data?.pendingInvite, queryClient, session]);
 
@@ -64,4 +83,24 @@ export function useCancelInvite() {
 
 export function useUnlinkCouple() {
   return useCoupleMutation(unlinkCouple);
+}
+
+export function useCoupleStatus() {
+  const query = useCouple();
+  const couple = query.data?.couple ?? null;
+  const partner = query.data?.partner ?? null;
+  const pendingInvite = query.data?.pendingInvite ?? null;
+  const isPaired = Boolean(partner && couple?.status !== "ended");
+  const hasPendingInvite = Boolean(
+    pendingInvite && new Date(pendingInvite.expires_at).getTime() > Date.now()
+  );
+
+  return {
+    ...query,
+    couple,
+    partner,
+    pendingInvite,
+    isPaired,
+    hasPendingInvite,
+  };
 }
