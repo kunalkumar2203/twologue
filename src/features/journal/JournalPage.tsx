@@ -1,5 +1,8 @@
 import { useSearchParams } from "react-router";
+import { BookHeart, Feather, Lock, NotebookPen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import UnconnectedSectionCard from "@/components/UnconnectedSectionCard";
+import { useCoupleStatus } from "@/features/couples/hooks";
 import JournalPages from "./JournalPages";
 import StoriesPanel from "./StoriesPanel";
 import WriteTogether from "./WriteTogether";
@@ -13,11 +16,41 @@ const SECTIONS = [
 type SectionId = (typeof SECTIONS)[number]["id"];
 
 export default function JournalPage() {
+  const { isPaired, isLoading, hasPendingInvite } = useCoupleStatus();
   const [params, setParams] = useSearchParams();
   const requested = params.get("tab");
   const active: SectionId = SECTIONS.some((section) => section.id === requested)
     ? (requested as SectionId)
     : "write";
+
+  if (!isLoading && !isPaired) {
+    return (
+      <UnconnectedSectionCard
+        badge="Shared Journal"
+        icon={NotebookPen}
+        hasPendingInvite={hasPendingInvite}
+        title="A private diary, written for two."
+        description="A quiet space with a shared daily prompt. Entries stay private until you both save, then reveal together."
+        highlights={[
+          {
+            icon: Lock,
+            title: "Blind-reveal daily entries",
+            description: "Write your thoughts freely. Neither sees anything until both have saved.",
+          },
+          {
+            icon: Feather,
+            title: "Collaborative stories",
+            description: "Take turns writing stories one paragraph at a time.",
+          },
+          {
+            icon: BookHeart,
+            title: "Your shared pages archive",
+            description: "Every revealed answer gathers into your private archive.",
+          },
+        ]}
+      />
+    );
+  }
 
   return (
     <section className="w-full max-w-3xl space-y-6 pb-12">

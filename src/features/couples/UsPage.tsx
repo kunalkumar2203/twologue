@@ -1,11 +1,15 @@
 import * as React from "react";
 import { useLocation } from "react-router";
+import { HeartHandshake, Hourglass, MessageCircleHeart, Zap } from "lucide-react";
+import UnconnectedSectionCard from "@/components/UnconnectedSectionCard";
 import TimeCapsuleSection from "@/features/capsules/TimeCapsuleSection";
 import DailyAnswersHistory from "@/features/journal/DailyAnswersHistory";
 import InvitePartnerCard from "./InvitePartnerCard";
 import ChallengeHistory from "../challenges/ChallengeHistory";
+import { useCoupleStatus } from "./hooks";
 
 export default function UsPage() {
+  const { isPaired, isLoading, hasPendingInvite } = useCoupleStatus();
   const location = useLocation();
 
   React.useEffect(() => {
@@ -20,6 +24,36 @@ export default function UsPage() {
       return () => clearTimeout(timer);
     }
   }, [location.hash]);
+
+  if (!isLoading && !isPaired) {
+    return (
+      <UnconnectedSectionCard
+        badge="Us, Together"
+        icon={HeartHandshake}
+        hasPendingInvite={hasPendingInvite}
+        title="Your shared sanctuary."
+        description="Where your history as a couple will live: time capsules, memories of revealed daily questions, and shared moments."
+        highlights={[
+          {
+            icon: Hourglass,
+            title: "Time capsules",
+            description: "Seal notes today that unlock on future anniversaries.",
+          },
+          {
+            icon: MessageCircleHeart,
+            title: "Revealed answers archive",
+            description: "Revisit daily questions you and your partner answered together.",
+          },
+          {
+            icon: Zap,
+            title: "Shared challenges history",
+            description: "Look back on connection rituals completed together.",
+          },
+        ]}
+      />
+    );
+  }
+
   return (
     <section className="w-full max-w-3xl space-y-8 pb-12">
       <div>
